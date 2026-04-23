@@ -1,0 +1,127 @@
+@startuml Diagrama de Classes - Sistema de Moeda Estudantil
+
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor #EEF2FF
+  BorderColor #4F46E5
+  ArrowColor #4F46E5
+  FontSize 12
+}
+skinparam stereotypeCBackgroundColor #DBEAFE
+
+' =================== ENUMS ===================
+
+enum TipoUsuario {
+  ALUNO
+  PROFESSOR
+  EMPRESA
+}
+
+enum TipoTransacao {
+  ENVIO
+  RESGATE
+}
+
+' =================== ENTIDADES ===================
+
+abstract class Usuario {
+  - Long id
+  - String email
+  - String senha
+  - TipoUsuario tipo
+  - boolean ativo
+  - LocalDateTime dataCadastro
+}
+
+class Aluno {
+  - String nome
+  - String cpf
+  - String rg
+  - String endereco
+  - String curso
+  - Integer saldoMoedas
+}
+
+class Professor {
+  - String nome
+  - String cpf
+  - String departamento
+  - Integer saldoMoedas
+}
+
+class EmpresaParceira {
+  - String nomeFantasia
+  - String cnpj
+}
+
+class Instituicao {
+  - Long id
+  - String nome
+  - String cidade
+  - String estado
+}
+
+class Vantagem {
+  - Long id
+  - String nome
+  - String descricao
+  - String fotoUrl
+  - Integer custoMoedas
+  - boolean ativa
+}
+
+abstract class Transacao {
+  - Long id
+  - Integer valor
+  - LocalDateTime dataHora
+  - TipoTransacao tipoTransacao
+}
+
+class TransacaoEnvio {
+  - String mensagem
+}
+
+class TransacaoResgate {
+  - String codigoCupom
+}
+
+' =================== HERANÇA ===================
+
+Usuario <|-- Aluno
+Usuario <|-- Professor
+Usuario <|-- EmpresaParceira
+
+Transacao <|-- TransacaoEnvio
+Transacao <|-- TransacaoResgate
+
+' =================== ASSOCIAÇÕES ===================
+
+Aluno "N" --> "1" Instituicao : estuda em >
+Professor "N" --> "1" Instituicao : vinculado a >
+
+EmpresaParceira "1" *--> "N" Vantagem : oferece >
+
+TransacaoEnvio "N" --> "1" Professor : enviada por >
+TransacaoEnvio "N" --> "1" Aluno : recebida por >
+
+TransacaoResgate "N" --> "1" Aluno : realizada por >
+TransacaoResgate "N" --> "1" Vantagem : referente a >
+
+Usuario --> TipoUsuario
+Transacao --> TipoTransacao
+
+' =================== NOTAS ===================
+
+note right of Usuario
+  Herança JOINED:
+  tabela 'usuarios' + tabela específica
+  por subtipo
+end note
+
+note right of Transacao
+  Herança SINGLE_TABLE:
+  tabela única 'transacoes' com
+  coluna discriminadora
+end note
+
+@enduml
