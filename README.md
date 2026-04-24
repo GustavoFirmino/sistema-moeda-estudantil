@@ -70,8 +70,10 @@
 
 * 🌐 **Aplicação:** [`http://localhost:8080`](http://localhost:8080) *(disponível com a aplicação rodando)*
 * 🩺 **Login:** [`http://localhost:8080/auth/login`](http://localhost:8080/auth/login)
-* 📐 **Diagramas UML:** [`docs/sprint1/`](docs/sprint1/)
-* 📋 **Modelo ER:** [`docs/sprint2/modelo-er.puml`](docs/sprint2/modelo-er.puml)
+* 📐 **Casos de Uso:** [`docs/sprint1/casos-de-uso/v1/`](docs/sprint1/casos-de-uso/v1/)
+* 📐 **Diagrama de Classes:** [`docs/sprint1/diagrama-classes/v1/`](docs/sprint1/diagrama-classes/v1/)
+* 📐 **Diagrama de Componentes:** [`docs/sprint1/diagrama-componentes/v1/`](docs/sprint1/diagrama-componentes/v1/)
+* 📋 **Modelo ER:** [`docs/sprint2/modelo-er/v1/`](docs/sprint2/modelo-er/v1/)
 * 📖 **User Stories:** [`docs/sprint1/user-stories.md`](docs/sprint1/user-stories.md)
 
 ---
@@ -170,10 +172,18 @@ O projeto segue a **Arquitetura MVC (Model-View-Controller)** com camada de serv
 | Pacote | Responsabilidade |
 |---|---|
 | `controller/` | Endpoints MVC — recebe requisições HTTP e retorna views |
+| `dto/` | Data Transfer Objects — desacoplam formulários das entidades JPA |
 | `service/` | Lógica de negócio — validações, transferência de moedas, envio de e-mail |
-| `repository/` | Interfaces Spring Data JPA — acesso ao banco de dados |
+| `repository/` | Interfaces Spring Data JPA — camada de acesso a dados (DAO) |
 | `model/` | Entidades JPA — mapeamento ORM das tabelas |
 | `model/enums/` | Enumerações do domínio (`TipoUsuario`, `TipoTransacao`) |
+| `exception/` | Exceções customizadas do domínio (`SaldoInsuficiente`, `UsuarioNaoEncontrado`, etc.) |
+| `handler/` | `GlobalExceptionHandler` — captura exceções globalmente via `@ControllerAdvice` |
+| `mapper/` | Conversão entre Entidade ↔ DTO (`AlunoMapper`, `VantagemMapper`) |
+| `event/` | Eventos Spring (`MoedasEnviadasEvent`, `VantagemResgatadaEvent`) |
+| `security/` | `SecurityUtils` — utilitário para obter usuário autenticado do contexto |
+| `util/` | Utilitários — formatação/validação de CPF/CNPJ, geração de cupom |
+| `constant/` | `AppConstants` — constantes globais (rotas, roles, diretórios) |
 | `config/` | Configurações Spring — Security, Web, DataInitializer |
 
 **Estratégia de herança JPA:**
@@ -185,14 +195,15 @@ O projeto segue a **Arquitetura MVC (Model-View-Controller)** com camada de serv
 
 ### Diagramas UML
 
-| Diagrama | Arquivo |
-|---|---|
-| Casos de Uso | [`docs/sprint1/casos-de-uso.puml`](docs/sprint1/casos-de-uso.puml) |
-| Diagrama de Classes | [`docs/sprint1/diagrama-classes.puml`](docs/sprint1/diagrama-classes.puml) |
-| Diagrama de Componentes | [`docs/sprint1/diagrama-componentes.puml`](docs/sprint1/diagrama-componentes.puml) |
-| Modelo ER | [`docs/sprint2/modelo-er.puml`](docs/sprint2/modelo-er.puml) |
+| Diagrama | Fonte PlantUML | Preview |
+|---|---|---|
+| Casos de Uso | [`docs/sprint1/casos-de-uso/v1/casos-de-uso.puml`](docs/sprint1/casos-de-uso/v1/casos-de-uso.puml) | [`casos-de-uso.png`](docs/sprint1/casos-de-uso/v1/Casos%20de%20Uso%20-%20Sistema%20de%20Moeda%20Estudantil.png) |
+| Diagrama de Classes | [`docs/sprint1/diagrama-classes/v1/diagrama-classes.puml`](docs/sprint1/diagrama-classes/v1/diagrama-classes.puml) | [`diagrama-classes.png`](docs/sprint1/diagrama-classes/v1/Diagrama%20de%20Classes%20-%20Sistema%20de%20Moeda%20Estudantil.png) |
+| Diagrama de Componentes | [`docs/sprint1/diagrama-componentes/v1/diagrama-componentes.puml`](docs/sprint1/diagrama-componentes/v1/diagrama-componentes.puml) | [`diagrama-componentes.png`](docs/sprint1/diagrama-componentes/v1/Diagrama%20de%20Componentes%20-%20Sistema%20de%20Moeda%20Estudantil.png) |
+| Modelo ER | [`docs/sprint2/modelo-er/v1/modelo-er.puml`](docs/sprint2/modelo-er/v1/modelo-er.puml) | [`modelo-er.png`](docs/sprint2/modelo-er/v1/Modelo%20ER%20-%20Sistema%20de%20Moeda%20Estudantil.png) |
 
-> Para visualizar os arquivos `.puml`, instale o plugin **PlantUML** no VS Code e pressione `Alt+D`.
+> Para editar os arquivos `.puml`, instale o plugin **PlantUML** no VS Code e pressione `Alt+D` para preview ao vivo.
+> As imagens `.png` foram geradas automaticamente via `plantuml -tpng`.
 
 ---
 
@@ -268,16 +279,50 @@ sistema-moeda-estudantil/
 │
 ├── src/main/java/com/pucminas/moedaestudantil/
 │   ├── MoedaEstudantilApplication.java
-│   ├── config/
+│   │
+│   ├── config/                     # Configurações Spring
 │   │   ├── SecurityConfig.java     # Autenticação, autorização, redirect pós-login
 │   │   ├── DataInitializer.java    # Seed: instituições + professor padrão
 │   │   └── WebConfig.java          # Handler de arquivos estáticos (/uploads)
-│   ├── controller/
-│   │   ├── AuthController.java     # /auth/login · /cadastro-aluno · /cadastro-empresa
+│   │
+│   ├── constant/                   # Constantes globais
+│   │   └── AppConstants.java       # Rotas, roles, diretórios, limites
+│   │
+│   ├── controller/                 # Camada MVC — endpoints HTTP
+│   │   ├── AuthController.java     # /auth/** — login, cadastro de aluno e empresa
 │   │   ├── AlunoController.java    # /aluno/** — dashboard, extrato, vantagens, resgate, perfil
 │   │   ├── ProfessorController.java # /professor/** — dashboard, enviar-moedas, extrato
 │   │   └── EmpresaParceiraController.java # /empresa/** — dashboard, CRUD vantagens, perfil
-│   ├── model/
+│   │
+│   ├── dto/                        # Data Transfer Objects — desacoplam forms das entidades
+│   │   ├── CadastroAlunoDTO.java
+│   │   ├── CadastroEmpresaDTO.java
+│   │   ├── EnviarMoedasDTO.java
+│   │   ├── VantagemDTO.java
+│   │   ├── AlunoDashboardDTO.java
+│   │   ├── ProfessorDashboardDTO.java
+│   │   └── EmpresaDashboardDTO.java
+│   │
+│   ├── event/                      # Eventos Spring (desacoplamento de notificações)
+│   │   ├── MoedasEnviadasEvent.java
+│   │   └── VantagemResgatadaEvent.java
+│   │
+│   ├── exception/                  # Exceções customizadas do domínio
+│   │   ├── SaldoInsuficienteException.java
+│   │   ├── UsuarioNaoEncontradoException.java
+│   │   ├── VantagemNaoEncontradaException.java
+│   │   ├── VantagemInativaException.java
+│   │   ├── EmailJaCadastradoException.java
+│   │   └── CpfCnpjJaCadastradoException.java
+│   │
+│   ├── handler/                    # Tratamento global de exceções
+│   │   └── GlobalExceptionHandler.java  # @ControllerAdvice
+│   │
+│   ├── mapper/                     # Conversão Entidade ↔ DTO
+│   │   ├── AlunoMapper.java
+│   │   └── VantagemMapper.java
+│   │
+│   ├── model/                      # Entidades JPA — mapeamento ORM
 │   │   ├── enums/
 │   │   │   ├── TipoUsuario.java    # ALUNO · PROFESSOR · EMPRESA
 │   │   │   └── TipoTransacao.java  # ENVIO · RESGATE
@@ -290,7 +335,8 @@ sistema-moeda-estudantil/
 │   │   ├── Transacao.java          # Entidade base (SINGLE_TABLE inheritance)
 │   │   ├── TransacaoEnvio.java     # Professor → Aluno
 │   │   └── TransacaoResgate.java   # Aluno → Vantagem (com código de cupom)
-│   ├── repository/
+│   │
+│   ├── repository/                 # Camada DAO — Spring Data JPA
 │   │   ├── UsuarioRepository.java
 │   │   ├── AlunoRepository.java
 │   │   ├── ProfessorRepository.java
@@ -299,14 +345,22 @@ sistema-moeda-estudantil/
 │   │   ├── VantagemRepository.java
 │   │   ├── TransacaoEnvioRepository.java
 │   │   └── TransacaoResgateRepository.java
-│   └── service/
-│       ├── UserDetailsServiceImpl.java  # Spring Security — carrega usuário por e-mail
-│       ├── AlunoService.java
-│       ├── ProfessorService.java
-│       ├── EmpresaParceiraService.java
-│       ├── VantagemService.java
-│       ├── TransacaoService.java        # Distribuição de moedas + resgate de vantagens
-│       └── EmailService.java            # Notificações por e-mail (configurável)
+│   │
+│   ├── security/                   # Utilitários de segurança
+│   │   └── SecurityUtils.java      # Acesso ao usuário autenticado via SecurityContext
+│   │
+│   ├── service/                    # Camada de negócio
+│   │   ├── UserDetailsServiceImpl.java  # Spring Security — carrega usuário por e-mail
+│   │   ├── AlunoService.java
+│   │   ├── ProfessorService.java
+│   │   ├── EmpresaParceiraService.java
+│   │   ├── VantagemService.java
+│   │   ├── TransacaoService.java        # Distribuição de moedas + resgate de vantagens
+│   │   └── EmailService.java            # Notificações por e-mail (configurável)
+│   │
+│   └── util/                       # Utilitários técnicos
+│       ├── CpfCnpjUtils.java       # Formatação e validação de CPF/CNPJ
+│       └── MoedaUtils.java         # Formatação de saldo + geração de cupom
 │
 ├── src/main/resources/
 │   ├── application.properties
@@ -315,19 +369,24 @@ sistema-moeda-estudantil/
 │   │   ├── auth/                   # login, cadastro-aluno, cadastro-empresa
 │   │   ├── aluno/                  # dashboard, extrato, vantagens, perfil
 │   │   ├── professor/              # dashboard, enviar-moedas, extrato
-│   │   └── empresa/                # dashboard, vantagens, nova/editar-vantagem, perfil
+│   │   ├── empresa/                # dashboard, vantagens, nova/editar-vantagem, perfil
+│   │   └── error/                  # páginas de erro (generico.html)
 │   └── static/
 │       ├── css/style.css
 │       └── js/main.js
 │
 ├── docs/
 │   ├── sprint1/
-│   │   ├── casos-de-uso.puml
-│   │   ├── diagrama-classes.puml
-│   │   ├── diagrama-componentes.puml
+│   │   ├── casos-de-uso/
+│   │   │   └── v1/                 # casos-de-uso.puml + .png
+│   │   ├── diagrama-classes/
+│   │   │   └── v1/                 # diagrama-classes.puml + .png
+│   │   ├── diagrama-componentes/
+│   │   │   └── v1/                 # diagrama-componentes.puml + .png
 │   │   └── user-stories.md
 │   └── sprint2/
-│       └── modelo-er.puml
+│       └── modelo-er/
+│           └── v1/                 # modelo-er.puml + .png
 │
 └── uploads/                        # Fotos de vantagens (gerado em runtime)
 ```
