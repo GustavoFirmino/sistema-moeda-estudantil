@@ -1,0 +1,117 @@
+@startuml Modelo ER - Sistema de Moeda Estudantil
+
+skinparam linetype ortho
+skinparam entity {
+  BackgroundColor #EEF2FF
+  BorderColor #4F46E5
+}
+skinparam ArrowColor #4F46E5
+
+' =================== ENTIDADES ===================
+
+entity "USUARIOS" as U {
+  * id : BIGINT <<PK>>
+  --
+  * email : VARCHAR(255) <<UK>>
+  * senha : VARCHAR(255)
+  * tipo_usuario : VARCHAR(20)
+  * ativo : BOOLEAN
+  * data_cadastro : TIMESTAMP
+}
+
+entity "ALUNOS" as AL {
+  * usuario_id : BIGINT <<PK, FK>>
+  --
+  * nome : VARCHAR(255)
+  * cpf : VARCHAR(14) <<UK>>
+  * rg : VARCHAR(20)
+  * endereco : VARCHAR(500)
+  * curso : VARCHAR(255)
+  * saldo_moedas : INTEGER
+  * instituicao_id : BIGINT <<FK>>
+}
+
+entity "PROFESSORES" as PR {
+  * usuario_id : BIGINT <<PK, FK>>
+  --
+  * nome : VARCHAR(255)
+  * cpf : VARCHAR(14) <<UK>>
+  * departamento : VARCHAR(255)
+  * saldo_moedas : INTEGER
+  * instituicao_id : BIGINT <<FK>>
+}
+
+entity "EMPRESAS_PARCEIRAS" as EP {
+  * usuario_id : BIGINT <<PK, FK>>
+  --
+  * nome_fantasia : VARCHAR(255)
+  * cnpj : VARCHAR(18) <<UK>>
+}
+
+entity "INSTITUICOES" as IN {
+  * id : BIGINT <<PK>>
+  --
+  * nome : VARCHAR(255)
+  * cidade : VARCHAR(100)
+  * estado : VARCHAR(2)
+}
+
+entity "VANTAGENS" as VA {
+  * id : BIGINT <<PK>>
+  --
+  * nome : VARCHAR(255)
+  * descricao : TEXT
+  foto_url : VARCHAR(500)
+  * custo_moedas : INTEGER
+  * ativa : BOOLEAN
+  * empresa_id : BIGINT <<FK>>
+}
+
+entity "TRANSACOES" as TR {
+  * id : BIGINT <<PK>>
+  --
+  * valor : INTEGER
+  * data_hora : TIMESTAMP
+  * tipo_transacao : VARCHAR(10)
+  professor_id : BIGINT <<FK, nullable>>
+  aluno_id : BIGINT <<FK, nullable>>
+  aluno_resgate_id : BIGINT <<FK, nullable>>
+  vantagem_id : BIGINT <<FK, nullable>>
+  mensagem : TEXT <<nullable>>
+  codigo_cupom : VARCHAR(20) <<UK, nullable>>
+}
+
+' =================== RELACIONAMENTOS ===================
+
+U ||--o| AL : "estende"
+U ||--o| PR : "estende"
+U ||--o| EP : "estende"
+
+AL }o--|| IN : "pertence a"
+PR }o--|| IN : "pertence a"
+
+EP ||--o{ VA : "oferece"
+
+PR ||--o{ TR : "envia (ENVIO)"
+AL ||--o{ TR : "recebe (ENVIO)"
+AL ||--o{ TR : "resgata (RESGATE)"
+VA ||--o{ TR : "resgatada em"
+
+' =================== NOTAS ===================
+
+note bottom of TR
+  SINGLE_TABLE inheritance:
+  - tipo_transacao = 'ENVIO':
+    usa professor_id, aluno_id, mensagem
+  - tipo_transacao = 'RESGATE':
+    usa aluno_resgate_id, vantagem_id, codigo_cupom
+end note
+
+note bottom of U
+  JOINED TABLE inheritance:
+  tabela-pai com campos comuns;
+  subtipos em tabelas separadas
+  ligadas por PK = FK
+end note
+
+@enduml

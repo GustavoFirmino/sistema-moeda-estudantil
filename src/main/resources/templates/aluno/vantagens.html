@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head th:replace="~{fragments/head :: head('Vantagens')}"></head>
+<body class="bg-light d-flex flex-column min-vh-100">
+
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<main class="container py-4 flex-grow-1">
+
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-2">
+            <i class="fas fa-gift text-primary fs-4"></i>
+            <h4 class="fw-bold mb-0">Vantagens Disponíveis</h4>
+        </div>
+        <div class="d-flex align-items-center gap-2 bg-warning bg-opacity-15 border border-warning rounded-pill px-3 py-2">
+            <i class="fas fa-coins text-warning"></i>
+            <span class="fw-bold">Seu saldo:</span>
+            <span class="fw-bold text-warning fs-5" th:text="${aluno.saldoMoedas}">0</span>
+            <span class="text-muted small">moedas</span>
+        </div>
+    </div>
+
+    <!-- Alertas flash -->
+    <div th:if="${sucesso}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-circle-check me-2"></i><span th:text="${sucesso}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${erro}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-circle-exclamation me-2"></i><span th:text="${erro}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Sem vantagens -->
+    <div th:if="${vantagens.isEmpty()}" class="text-center py-5">
+        <i class="fas fa-box-open fa-3x text-muted mb-3 d-block"></i>
+        <h5 class="text-muted">Nenhuma vantagem disponível no momento.</h5>
+        <p class="text-muted small">Empresas parceiras ainda estão cadastrando suas ofertas.</p>
+    </div>
+
+    <!-- Grid de vantagens -->
+    <div class="row g-4" th:if="${!vantagens.isEmpty()}">
+        <div class="col-md-6 col-lg-4" th:each="v : ${vantagens}">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+
+                <!-- Foto do produto -->
+                <div class="position-relative">
+                    <img th:if="${v.fotoUrl != null}"
+                         th:src="${v.fotoUrl}"
+                         class="card-img-top rounded-top-4 object-fit-cover"
+                         style="height: 180px;"
+                         th:alt="${v.nome}"/>
+                    <div th:if="${v.fotoUrl == null}"
+                         class="d-flex align-items-center justify-content-center bg-light rounded-top-4"
+                         style="height: 180px;">
+                        <i class="fas fa-image fa-3x text-muted"></i>
+                    </div>
+                    <span class="position-absolute top-0 end-0 m-2 badge bg-dark">
+                        <span th:text="${v.empresaParceira.nomeFantasia}"></span>
+                    </span>
+                </div>
+
+                <div class="card-body d-flex flex-column p-3">
+                    <h6 class="fw-bold mb-1" th:text="${v.nome}"></h6>
+                    <p class="text-muted small flex-grow-1" th:text="${v.descricao}"></p>
+
+                    <div class="d-flex align-items-center justify-content-between mt-2">
+                        <div class="d-flex align-items-center gap-1">
+                            <i class="fas fa-coins text-warning"></i>
+                            <span class="fw-bold fs-5" th:text="${v.custoMoedas}"></span>
+                            <span class="text-muted small">moedas</span>
+                        </div>
+
+                        <!-- Botão de resgate com modal de confirmação -->
+                        <button type="button"
+                                class="btn btn-primary btn-sm"
+                                th:data-id="${v.id}"
+                                th:data-nome="${v.nome}"
+                                th:data-custo="${v.custoMoedas}"
+                                th:data-saldo="${aluno.saldoMoedas}"
+                                th:disabled="${aluno.saldoMoedas < v.custoMoedas}"
+                                onclick="confirmarResgate(this)">
+                            <i class="fas fa-ticket me-1"></i>
+                            <span th:text="${aluno.saldoMoedas >= v.custoMoedas ? 'Resgatar' : 'Saldo insuficiente'}"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Modal de confirmação -->
+<div class="modal fade" id="modalResgate" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold"><i class="fas fa-ticket me-2 text-primary"></i>Confirmar Resgate</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Você está prestes a resgatar:</p>
+                <div class="bg-light rounded-3 p-3 mb-3">
+                    <p class="fw-bold mb-1" id="modalNomeVantagem"></p>
+                    <p class="text-muted small mb-0">Custo: <strong><span id="modalCustoVantagem"></span> moedas</strong></p>
+                </div>
+                <p class="small text-muted">Um cupom será enviado para o seu e-mail. Esta ação não pode ser desfeita.</p>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form id="formResgate" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-check me-1"></i>Confirmar Resgate
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmHBGFNB9J8+wgMH3/+PY4JEy2O"
+        crossorigin="anonymous"></script>
+<script th:src="@{/js/main.js}"></script>
+<script>
+    function confirmarResgate(btn) {
+        const id = btn.dataset.id;
+        const nome = btn.dataset.nome;
+        const custo = btn.dataset.custo;
+        document.getElementById('modalNomeVantagem').textContent = nome;
+        document.getElementById('modalCustoVantagem').textContent = custo;
+        document.getElementById('formResgate').action = '/aluno/resgatar/' + id;
+        new bootstrap.Modal(document.getElementById('modalResgate')).show();
+    }
+</script>
+</body>
+</html>
