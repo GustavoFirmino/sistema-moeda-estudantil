@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head th:replace="~{fragments/head :: head('Cadastro de Aluno')}"></head>
+<body class="bg-light d-flex flex-column min-vh-100">
+
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<main class="container py-5 flex-grow-1">
+    <div class="row justify-content-center">
+        <div class="col-lg-7 col-xl-6">
+
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-body p-4 p-md-5">
+
+                    <div class="text-center mb-4">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                             style="width:64px;height:64px">
+                            <i class="fas fa-user-graduate fs-3 text-primary"></i>
+                        </div>
+                        <h3 class="fw-bold">Cadastro de Aluno</h3>
+                        <p class="text-muted">Preencha seus dados para entrar no sistema de mérito.</p>
+                    </div>
+
+                    <div th:if="${erro}" class="alert alert-danger d-flex align-items-center gap-2">
+                        <i class="fas fa-circle-exclamation"></i>
+                        <span th:text="${erro}"></span>
+                    </div>
+
+                    <form th:action="@{/auth/cadastro-aluno}" th:object="${aluno}" method="post"
+                          class="needs-validation" novalidate>
+
+                        <div class="row g-3">
+                            <!-- Nome -->
+                            <div class="col-12">
+                                <label class="form-label fw-medium">Nome completo <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" th:field="*{nome}"
+                                       placeholder="Seu nome completo" required/>
+                                <div class="invalid-feedback">Informe seu nome.</div>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="col-12">
+                                <label class="form-label fw-medium">E-mail <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" th:field="*{email}"
+                                       placeholder="seu@email.com" required/>
+                                <div class="invalid-feedback">Informe um e-mail válido.</div>
+                            </div>
+
+                            <!-- CPF e RG -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium">CPF <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" th:field="*{cpf}"
+                                       placeholder="000.000.000-00" maxlength="14" required/>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium">RG <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" th:field="*{rg}"
+                                       placeholder="MG-00.000.000" required/>
+                            </div>
+
+                            <!-- Endereço -->
+                            <div class="col-12">
+                                <label class="form-label fw-medium">Endereço <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" th:field="*{endereco}"
+                                       placeholder="Rua, número, bairro, cidade/UF" required/>
+                            </div>
+
+                            <!-- Instituição -->
+                            <div class="col-md-7">
+                                <label class="form-label fw-medium">Instituição de Ensino <span class="text-danger">*</span></label>
+                                <select class="form-select" th:field="*{instituicao.id}" required>
+                                    <option value="">Selecione sua instituição...</option>
+                                    <option th:each="inst : ${instituicoes}"
+                                            th:value="${inst.id}"
+                                            th:text="${inst}"></option>
+                                </select>
+                            </div>
+
+                            <!-- Curso -->
+                            <div class="col-md-5">
+                                <label class="form-label fw-medium">Curso <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" th:field="*{curso}"
+                                       placeholder="Ex: Engenharia de Software" required/>
+                            </div>
+
+                            <hr class="my-2"/>
+
+                            <!-- Senha -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium">Senha <span class="text-danger">*</span></label>
+                                <input type="password" class="form-control" name="senha"
+                                       placeholder="Mínimo 6 caracteres" required minlength="6"/>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium">Confirmar senha <span class="text-danger">*</span></label>
+                                <input type="password" class="form-control" name="confirmarSenha"
+                                       placeholder="Repita a senha" required minlength="6"/>
+                            </div>
+
+                            <div class="col-12 mt-2">
+                                <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">
+                                    <i class="fas fa-user-plus me-2"></i>Criar minha conta
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <div class="text-center mt-3">
+                        <a th:href="@{/auth/login}" class="text-muted small">
+                            <i class="fas fa-arrow-left me-1"></i>Já tenho conta
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmHBGFNB9J8+wgMH3/+PY4JEy2O"
+        crossorigin="anonymous"></script>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

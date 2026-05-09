@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head th:replace="~{fragments/head :: head('Dashboard Professor')}"></head>
+<body class="bg-light d-flex flex-column min-vh-100">
+
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<main class="container py-4 flex-grow-1">
+
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+        <div>
+            <h4 class="fw-bold mb-0">Olá, Prof. <span th:text="${professor.nome.split(' ')[0]}">Professor</span>! 👋</h4>
+            <p class="text-muted small mb-0"
+               th:text="${professor.departamento + ' — ' + professor.instituicao.nome}"></p>
+        </div>
+        <a th:href="@{/professor/enviar-moedas}" class="btn btn-primary">
+            <i class="fas fa-paper-plane me-1"></i>Enviar Moedas
+        </a>
+    </div>
+
+    <div th:if="${sucesso}" class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-circle-check me-2"></i><span th:text="${sucesso}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${erro}" class="alert alert-danger alert-dismissible fade show">
+        <i class="fas fa-circle-exclamation me-2"></i><span th:text="${erro}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Saldo em destaque -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-5">
+            <div class="card border-0 shadow-sm rounded-4 bg-primary text-white h-100">
+                <div class="card-body p-4 d-flex align-items-center gap-3">
+                    <i class="fas fa-wallet fs-1 opacity-50"></i>
+                    <div>
+                        <p class="mb-1 opacity-75">Saldo disponível</p>
+                        <h2 class="fw-bold mb-0" th:text="${professor.saldoMoedas}">0</h2>
+                        <p class="mb-0 small opacity-75">moedas para distribuir</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-7">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-4">
+                    <h6 class="fw-bold text-muted mb-3">Como funciona</h6>
+                    <ul class="list-unstyled mb-0 small">
+                        <li class="mb-2"><i class="fas fa-circle-check text-success me-2"></i>Você recebe <strong>1.000 moedas</strong> por semestre.</li>
+                        <li class="mb-2"><i class="fas fa-circle-check text-success me-2"></i>O saldo <strong>acumula</strong> entre semestres.</li>
+                        <li class="mb-2"><i class="fas fa-circle-check text-success me-2"></i>Distribua para alunos com uma mensagem de reconhecimento.</li>
+                        <li><i class="fas fa-circle-check text-success me-2"></i>O aluno recebe uma notificação por <strong>e-mail</strong>.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Últimos envios -->
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-header bg-white rounded-top-4 d-flex align-items-center justify-content-between py-3 px-4">
+            <h6 class="fw-bold mb-0"><i class="fas fa-history text-primary me-2"></i>Últimos Envios</h6>
+            <a th:href="@{/professor/extrato}" class="btn btn-link btn-sm text-decoration-none">
+                Ver extrato completo <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+        </div>
+        <div class="card-body p-0">
+            <div th:if="${enviosRecentes.isEmpty()}" class="text-center py-5 text-muted">
+                <i class="fas fa-paper-plane fa-2x mb-2 d-block"></i>
+                Você ainda não enviou moedas. Reconheça seus alunos!
+            </div>
+            <div th:if="${!enviosRecentes.isEmpty()}" class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Aluno</th>
+                        <th>Motivo</th>
+                        <th class="text-end">Moedas</th>
+                        <th class="text-end pe-4">Data</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="e : ${enviosRecentes}">
+                        <td class="ps-4 fw-medium" th:text="${e.aluno.nome}"></td>
+                        <td class="text-muted" th:text="${e.mensagem}"></td>
+                        <td class="text-end">
+                            <span class="badge bg-primary">-<span th:text="${e.valor}"></span></span>
+                        </td>
+                        <td class="text-end pe-4 text-muted small"
+                            th:text="${#temporals.format(e.dataHora, 'dd/MM/yyyy')}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmHBGFNB9J8+wgMH3/+PY4JEy2O"
+        crossorigin="anonymous"></script>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

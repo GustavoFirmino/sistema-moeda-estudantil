@@ -37,7 +37,7 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-007ec6?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Compose-007ec6?style=for-the-badge&logo=docker&logoColor=white)
 ![Maven](https://img.shields.io/badge/Maven-3.9-007ec6?style=for-the-badge&logo=apachemaven&logoColor=white)
-![Versão](https://img.shields.io/badge/Versão-Sprint_1-brightgreen?style=for-the-badge)
+![Versão](https://img.shields.io/badge/Versão-Sprint_3_Release_1-brightgreen?style=for-the-badge)
 ![Licença](https://img.shields.io/badge/Licença-MIT-007ec6?style=for-the-badge&logo=opensourceinitiative)
 
 ---
@@ -74,6 +74,7 @@
 * 📐 **Diagrama de Classes:** [`docs/sprint1/diagrama-classes/v1/`](docs/sprint1/diagrama-classes/v1/)
 * 📐 **Diagrama de Componentes:** [`docs/sprint1/diagrama-componentes/v1/`](docs/sprint1/diagrama-componentes/v1/)
 * 📋 **Modelo ER:** [`docs/sprint2/modelo-er/v1/`](docs/sprint2/modelo-er/v1/)
+* 🎞️ **Apresentação Sprint 3:** [`docs/sprint3/apresentacao/Sprint 3 - Arquitetura e Persistencia.pptx`](docs/sprint3/apresentacao/Sprint%203%20-%20Arquitetura%20e%20Persistencia.pptx)
 * 📖 **User Stories:** [`docs/sprint1/user-stories.md`](docs/sprint1/user-stories.md)
 
 ---
