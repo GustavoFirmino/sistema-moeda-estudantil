@@ -420,8 +420,8 @@ sistema-moeda-estudantil/
 | Sprint | Entregável | Status |
 |---|---|---|
 | Lab03S01 | Casos de Uso, User Stories, Diagrama de Classes, Diagrama de Componentes | ✅ Concluído |
-| Lab03S02 | Modelo ER, estratégia ORM (JPA/Hibernate), CRUDs iniciais de aluno e empresa | 🔄 Em andamento |
-| Lab03S03 | CRUDs finais, integração completa, apresentação da arquitetura | ⏳ Pendente |
+| Lab03S02 | Modelo ER, estratégia ORM (JPA/Hibernate), CRUDs iniciais de aluno e empresa | ✅ Concluído |
+| Lab03S03 | CRUDs finais, integração completa, apresentação da arquitetura | ✅ Concluído |
 
 ---
 

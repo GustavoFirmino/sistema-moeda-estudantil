@@ -18,6 +18,9 @@ public class TransacaoResgate extends Transacao {
     @JoinColumn(name = "vantagem_id")
     private Vantagem vantagem;
 
-    @Column(name = "codigo_cupom", nullable = false, unique = true)
+    // SINGLE_TABLE: a coluna é compartilhada com TransacaoEnvio (cupom nulo),
+    // por isso não pode ser NOT NULL no banco. A obrigatoriedade no resgate
+    // é garantida em TransacaoService.
+    @Column(name = "codigo_cupom", unique = true)
     private String codigoCupom;
 }
