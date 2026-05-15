@@ -10,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @ControllerAdvice
 @Slf4j
@@ -38,6 +39,14 @@ public class GlobalExceptionHandler {
     public String handleVantagem(RuntimeException ex, Model model) {
         log.warn("Erro de vantagem: {}", ex.getMessage());
         model.addAttribute("erro", ex.getMessage());
+        model.addAttribute("status", 404);
+        return "error/generico";
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String handleRecursoEstaticoNaoEncontrado(NoResourceFoundException ex, Model model) {
+        model.addAttribute("erro", "Recurso não encontrado.");
         model.addAttribute("status", 404);
         return "error/generico";
     }

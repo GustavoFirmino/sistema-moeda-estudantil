@@ -46,7 +46,7 @@
                     <div>
                         <p class="text-muted small mb-1">Vantagens Ativas</p>
                         <h2 class="fw-bold mb-0"
-                            th:text="${vantagens.stream().filter(v -> v.isAtiva()).count()}">0</h2>
+                            th:text="${vantagens.?[ativa].size()}">0</h2>
                     </div>
                 </div>
             </div>
