@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head th:replace="~{fragments/head :: head('Apresentação — Telas e Design')}"></head>
+<body class="bg-light d-flex flex-column min-vh-100">
+
+<!-- Cabeçalho público -->
+<header class="text-white" style="background:linear-gradient(135deg,#2552E6,#0E1E5B)">
+    <div class="container py-5">
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <img th:src="@{/img/logo.png}" alt="Logo" width="56" height="56"
+                 class="rounded-circle border border-2 border-white"/>
+            <span class="fw-bold fs-5">Sistema de Moeda Estudantil</span>
+        </div>
+        <h1 class="fw-bold display-5 mb-3">Apresentação das Telas &amp; Design</h1>
+        <p class="lead mb-4" style="max-width:760px;color:#D7DFF7">
+            Um passeio visual pelas interfaces do sistema, explicando o propósito de cada
+            tela e as decisões de design que tornam a experiência clara e consistente.
+        </p>
+        <a th:href="@{/auth/login}" class="btn btn-warning fw-semibold px-4">
+            <i class="fas fa-right-to-bracket me-2"></i>Acessar o sistema
+        </a>
+    </div>
+</header>
+
+<main class="container py-5 flex-grow-1">
+
+    <!-- Sistema de Design -->
+    <section class="mb-5">
+        <h2 class="fw-bold mb-4"><i class="fas fa-palette text-primary me-2"></i>Sistema de Design</h2>
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm rounded-4 h-100">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold">Paleta de cores</h6>
+                        <div class="d-flex gap-2 my-3">
+                            <span class="rounded" style="width:34px;height:34px;background:#2552E6" title="Azul primário"></span>
+                            <span class="rounded" style="width:34px;height:34px;background:#0E1E5B" title="Azul escuro"></span>
+                            <span class="rounded" style="width:34px;height:34px;background:#FFC107" title="Dourado (moeda)"></span>
+                            <span class="rounded border" style="width:34px;height:34px;background:#F4F6FB" title="Fundo claro"></span>
+                        </div>
+                        <p class="text-muted small mb-0">Azul transmite confiança institucional; o dourado remete à
+                            moeda e marca ações de valor.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm rounded-4 h-100">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold">Tipografia &amp; ícones</h6>
+                        <p class="text-muted small mb-0">Fonte do sistema legível, hierarquia por peso e tamanho.
+                            Ícones <strong>Font Awesome</strong> reforçam o significado de cada ação.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm rounded-4 h-100">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold">Componentes</h6>
+                        <p class="text-muted small mb-0">Cards arredondados com sombra suave, navbar fixa por perfil,
+                            alertas dispensáveis e modais de confirmação (<strong>Bootstrap 5</strong>).</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm rounded-4 h-100">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold">Responsivo</h6>
+                        <p class="text-muted small mb-0">Grid de 12 colunas do Bootstrap; as telas se adaptam a
+                            celular, tablet e desktop sem perder a leitura.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Telas -->
+    <section>
+        <h2 class="fw-bold mb-4"><i class="fas fa-display text-primary me-2"></i>As Telas, uma a uma</h2>
+
+        <div class="row g-4" th:with="telas=${ {
+            {'g':'Autenticação','img':'login.png','t':'Login','d':'Porta de entrada única. Formulário enxuto, campo de senha com botão para revelar e atalhos para o cadastro. Define o tom visual (azul + dourado) usado em todo o sistema.'},
+            {'g':'Autenticação','img':'cadastro-aluno.png','t':'Cadastro de Aluno','d':'Formulário em duas colunas que agrupa dados pessoais, instituição e curso. Validação em tempo real e mensagens de erro claras evitam frustração no preenchimento.'},
+            {'g':'Aluno','img':'dashboard-aluno.png','t':'Dashboard do Aluno','d':'Cartões de destaque (saldo, recebimentos, perfil) seguidos do histórico. O saldo em dourado é o elemento de maior peso visual — a informação mais importante para o aluno.'},
+            {'g':'Aluno','img':'vantagens.png','t':'Catálogo de Vantagens','d':'Grade de cards com foto, custo e botão de resgate. O botão desativa automaticamente quando falta saldo, e um modal confirma a troca antes de debitar moedas.'},
+            {'g':'Professor','img':'dashboard-professor.png','t':'Dashboard do Professor','d':'Mostra o saldo de moedas a distribuir e os últimos envios. Layout idêntico ao do aluno para manter consistência e reduzir curva de aprendizado.'},
+            {'g':'Professor','img':'enviar-moedas.png','t':'Enviar Moedas','d':'Seleção do aluno, quantidade e mensagem obrigatória de reconhecimento. O limite de saldo é exibido para guiar o professor e prevenir erros.'},
+            {'g':'Empresa','img':'dashboard-empresa.png','t':'Dashboard da Empresa','d':'Resumo com total de vantagens, ativas e CNPJ, além da tabela de ofertas com status colorido (verde = ativa). Visão rápida da operação do parceiro.'},
+            {'g':'Empresa','img':'gerenciar-vantagens.png','t':'Gerenciar Vantagens','d':'CRUD completo das vantagens (criar, editar, ativar/desativar). Ações claras e tabela organizada facilitam a manutenção do catálogo pelo parceiro.'}
+        } }">
+            <div class="col-lg-6" th:each="tela : ${telas}">
+                <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
+                    <div class="bg-light border-bottom p-3 text-center">
+                        <img th:src="@{'/img/screens/' + ${tela.img}}" th:alt="${tela.t}"
+                             class="img-fluid rounded" style="max-height:240px"/>
+                    </div>
+                    <div class="card-body p-4">
+                        <span class="badge bg-primary-subtle text-primary mb-2" th:text="${tela.g}">Grupo</span>
+                        <h5 class="fw-bold" th:text="${tela.t}">Título</h5>
+                        <p class="text-muted small mb-0" th:text="${tela.d}">Descrição</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<footer class="text-white py-4" style="background:#0E1E5B">
+    <div class="container d-flex flex-wrap justify-content-between gap-2 small">
+        <span>Sistema de Moeda Estudantil — PUC Minas — Engenharia de Software</span>
+        <span>Laboratório de Desenvolvimento de Software</span>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+</body>
+</html>
