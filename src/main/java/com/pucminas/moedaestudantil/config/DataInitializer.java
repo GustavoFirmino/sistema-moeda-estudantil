@@ -1,6 +1,5 @@
 package com.pucminas.moedaestudantil.config;
 
-import com.pucminas.moedaestudantil.model.Admin;
 import com.pucminas.moedaestudantil.model.Instituicao;
 import com.pucminas.moedaestudantil.model.Professor;
 import com.pucminas.moedaestudantil.repository.InstituicaoRepository;
@@ -55,15 +54,8 @@ public class DataInitializer {
             prof.setInstituicao(puc);
             professorRepository.save(prof);
 
-            Admin admin = new Admin();
-            admin.setEmail("admin@pucminas.br");
-            admin.setSenha(passwordEncoder.encode("admin123"));
-            admin.setNome("Administrador da Instituição");
-            usuarioRepository.save(admin);
-
             log.info("Dados inicializados com sucesso!");
             log.info("Professor padrão criado: professor@pucminas.br / professor123");
-            log.info("Admin padrão criado: admin@pucminas.br / admin123");
         };
     }
 }

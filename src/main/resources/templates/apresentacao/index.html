@@ -100,7 +100,7 @@
                 {'i':'fa-brands fa-java','n':'Java 21 + Spring Boot 3.5','d':'Linguagem e framework principal — injeção de dependências e produtividade.'},
                 {'i':'fa-solid fa-diagram-project','n':'Spring MVC + Thymeleaf','d':'Camadas Controller e View do padrão MVC, com renderização no servidor.'},
                 {'i':'fa-solid fa-database','n':'Spring Data JPA + Hibernate','d':'ORM e repositórios (padrão DAO); herança JOINED e SINGLE_TABLE.'},
-                {'i':'fa-solid fa-shield-halved','n':'Spring Security 6','d':'Autenticação por formulário e autorização por papéis (aluno, professor, empresa, admin).'},
+                {'i':'fa-solid fa-shield-halved','n':'Spring Security 6','d':'Autenticação por formulário e autorização por papéis (aluno, professor, empresa).'},
                 {'i':'fa-solid fa-server','n':'PostgreSQL 16 + Docker','d':'Banco de dados relacional containerizado para ambiente reproduzível.'},
                 {'i':'fa-solid fa-envelope','n':'Spring Mail','d':'Notificações por e-mail de recebimento de moedas e cupom de resgate.'},
                 {'i':'fa-brands fa-bootstrap','n':'Bootstrap 5 + Font Awesome','d':'UI responsiva, componentes e ícones para uma experiência consistente.'},
@@ -115,6 +115,59 @@
                         </div>
                         <h6 class="fw-bold" th:text="${t.n}">Tecnologia</h6>
                         <p class="text-muted small mb-0" th:text="${t.d}">Descrição</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Entidades do Domínio -->
+    <section class="mb-5">
+        <h2 class="fw-bold mb-4"><i class="fas fa-sitemap text-primary me-2"></i>Entidades do Domínio</h2>
+        <div class="row g-4"
+             th:with="ents=${ {
+                {'n':'Usuario','d':'Entidade base (herança JOINED). Guarda e-mail, senha, tipo e situação. Especializada em Aluno, Professor e Empresa Parceira.'},
+                {'n':'Aluno','d':'Nome, CPF, RG, endereço, curso e instituição. Possui saldo de moedas e troca por vantagens.'},
+                {'n':'Professor','d':'Nome, CPF, departamento e instituição. Recebe 1.000 moedas por semestre para distribuir aos alunos.'},
+                {'n':'Empresa Parceira','d':'Nome fantasia e CNPJ. Cadastra vantagens e também registra os professores no sistema.'},
+                {'n':'Instituição','d':'Instituições de ensino pré-cadastradas, vinculadas a alunos e professores.'},
+                {'n':'Vantagem','d':'Produto/desconto oferecido por uma empresa: nome, descrição, foto, custo em moedas e status.'},
+                {'n':'Transacao','d':'Entidade base (herança SINGLE_TABLE) com valor e data. Especializada em Envio e Resgate.'},
+                {'n':'TransacaoEnvio / TransacaoResgate','d':'Envio: professor → aluno, com mensagem. Resgate: aluno → vantagem, com código de cupom.'}
+             } }">
+            <div class="col-md-6 col-lg-3" th:each="e : ${ents}">
+                <div class="card border-0 shadow-sm rounded-4 h-100">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold text-primary mb-2">
+                            <i class="fas fa-cube me-1"></i><span th:text="${e.n}">Entidade</span>
+                        </h6>
+                        <p class="text-muted small mb-0" th:text="${e.d}">Descrição</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modelagem & Diagramas -->
+    <section class="mb-5">
+        <h2 class="fw-bold mb-4"><i class="fas fa-diagram-project text-primary me-2"></i>Modelagem &amp; Diagramas</h2>
+        <div class="row g-4"
+             th:with="diags=${ {
+                {'img':'casos-de-uso.png','t':'Diagrama de Casos de Uso','s':'Lab03S01','d':'Mapeia as interações de aluno, professor e empresa com o sistema.'},
+                {'img':'classes.png','t':'Diagrama de Classes','s':'Lab03S01','d':'Estrutura do domínio com as heranças de Usuario e Transacao.'},
+                {'img':'componentes.png','t':'Diagrama de Componentes','s':'Lab03S01','d':'Organização em camadas e dependências da arquitetura MVC.'},
+                {'img':'modelo-er.png','t':'Modelo Entidade-Relacionamento','s':'Lab03S02','d':'Tabelas e relacionamentos que sustentam a camada de persistência.'}
+             } }">
+            <div class="col-lg-6" th:each="dg : ${diags}">
+                <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
+                    <div class="bg-light border-bottom p-3 text-center">
+                        <img th:src="@{'/img/diagrams/' + ${dg.img}}" th:alt="${dg.t}"
+                             class="img-fluid rounded" style="max-height:300px"/>
+                    </div>
+                    <div class="card-body p-4">
+                        <span class="badge bg-primary-subtle text-primary mb-2" th:text="${dg.s}">Sprint</span>
+                        <h5 class="fw-bold" th:text="${dg.t}">Título</h5>
+                        <p class="text-muted small mb-0" th:text="${dg.d}">Descrição</p>
                     </div>
                 </div>
             </div>
