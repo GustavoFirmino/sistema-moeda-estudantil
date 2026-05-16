@@ -1,13 +1,18 @@
 package com.pucminas.moedaestudantil.controller;
 
 import com.pucminas.moedaestudantil.model.EmpresaParceira;
+import com.pucminas.moedaestudantil.model.Professor;
 import com.pucminas.moedaestudantil.model.Vantagem;
+import com.pucminas.moedaestudantil.repository.InstituicaoRepository;
 import com.pucminas.moedaestudantil.service.EmpresaParceiraService;
+import com.pucminas.moedaestudantil.service.ProfessorService;
 import com.pucminas.moedaestudantil.service.VantagemService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -19,6 +24,8 @@ public class EmpresaParceiraController {
 
     private final EmpresaParceiraService empresaService;
     private final VantagemService vantagemService;
+    private final ProfessorService professorService;
+    private final InstituicaoRepository instituicaoRepository;
 
     private EmpresaParceira getEmpresa(Authentication auth) {
         return empresaService.buscarPorEmail(auth.getName())
@@ -101,6 +108,50 @@ public class EmpresaParceiraController {
         vantagemService.desativar(id);
         redirect.addFlashAttribute("sucesso", "Vantagem desativada.");
         return "redirect:/empresa/vantagens";
+    }
+
+    @GetMapping("/professores")
+    public String professores(Authentication auth, Model model) {
+        model.addAttribute("empresa", getEmpresa(auth));
+        if (!model.containsAttribute("professor")) {
+            model.addAttribute("professor", new Professor());
+        }
+        model.addAttribute("professores", professorService.listarTodos());
+        model.addAttribute("instituicoes", instituicaoRepository.findAll());
+        return "empresa/professores";
+    }
+
+    @PostMapping("/professores")
+    public String cadastrarProfessor(@Valid @ModelAttribute("professor") Professor professor,
+                                     BindingResult result,
+                                     @RequestParam String senha,
+                                     @RequestParam String confirmarSenha,
+                                     Authentication auth,
+                                     Model model,
+                                     RedirectAttributes redirect) {
+        model.addAttribute("empresa", getEmpresa(auth));
+        model.addAttribute("professores", professorService.listarTodos());
+        model.addAttribute("instituicoes", instituicaoRepository.findAll());
+        if (result.hasErrors()) {
+            return "empresa/professores";
+        }
+        if (!senha.equals(confirmarSenha)) {
+            model.addAttribute("erro", "As senhas não coincidem.");
+            return "empresa/professores";
+        }
+        if (senha.length() < 6) {
+            model.addAttribute("erro", "A senha deve ter no mínimo 6 caracteres.");
+            return "empresa/professores";
+        }
+        try {
+            professorService.cadastrar(professor, senha);
+            redirect.addFlashAttribute("sucesso",
+                    "Professor cadastrado com sucesso! 1.000 moedas creditadas.");
+            return "redirect:/empresa/professores";
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("erro", e.getMessage());
+            return "empresa/professores";
+        }
     }
 
     @GetMapping("/perfil")
