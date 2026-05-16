@@ -27,8 +27,10 @@ public class AuthController {
         if (auth == null || !auth.isAuthenticated()) return "redirect:/auth/login";
         boolean isAluno     = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ALUNO"));
         boolean isProfessor = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_PROFESSOR"));
+        boolean isAdmin     = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
         if (isAluno)     return "redirect:/aluno/dashboard";
         if (isProfessor) return "redirect:/professor/dashboard";
+        if (isAdmin)     return "redirect:/admin/professores";
         return "redirect:/empresa/dashboard";
     }
 

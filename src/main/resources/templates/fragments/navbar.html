@@ -51,6 +51,13 @@
                     </a>
                 </li>
 
+                <!-- ADMIN -->
+                <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                    <a class="nav-link" th:href="@{/admin/professores}">
+                        <i class="fas fa-user-tie me-1"></i>Professores
+                    </a>
+                </li>
+
                 <!-- EMPRESA -->
                 <li class="nav-item" sec:authorize="hasRole('EMPRESA')">
                     <a class="nav-link" th:href="@{/empresa/dashboard}">

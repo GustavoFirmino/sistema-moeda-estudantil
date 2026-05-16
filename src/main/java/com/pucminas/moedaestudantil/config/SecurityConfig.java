@@ -37,10 +37,11 @@ public class SecurityConfig {
         http
             .authenticationProvider(authenticationProvider())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/auth/**", "/css/**", "/js/**", "/img/**", "/uploads/**", "/error").permitAll()
+                .requestMatchers("/", "/auth/**", "/apresentacao", "/css/**", "/js/**", "/img/**", "/uploads/**", "/error").permitAll()
                 .requestMatchers("/aluno/**").hasRole("ALUNO")
                 .requestMatchers("/professor/**").hasRole("PROFESSOR")
                 .requestMatchers("/empresa/**").hasRole("EMPRESA")
+                .requestMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
@@ -62,12 +63,15 @@ public class SecurityConfig {
     @Bean
     public AuthenticationSuccessHandler successHandler() {
         return (request, response, authentication) -> {
-            boolean isAluno    = authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ALUNO"));
+            boolean isAluno     = authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ALUNO"));
             boolean isProfessor = authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_PROFESSOR"));
+            boolean isAdmin     = authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
             if (isAluno) {
                 response.sendRedirect("/aluno/dashboard");
             } else if (isProfessor) {
                 response.sendRedirect("/professor/dashboard");
+            } else if (isAdmin) {
+                response.sendRedirect("/admin/professores");
             } else {
                 response.sendRedirect("/empresa/dashboard");
             }
