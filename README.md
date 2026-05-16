@@ -70,11 +70,12 @@
 
 * 🌐 **Aplicação:** [`http://localhost:8080`](http://localhost:8080) *(disponível com a aplicação rodando)*
 * 🩺 **Login:** [`http://localhost:8080/auth/login`](http://localhost:8080/auth/login)
+* 🖥️ **Apresentação do sistema (pública):** [`http://localhost:8080/apresentacao`](http://localhost:8080/apresentacao) — stack, entidades, diagramas, design e telas
 * 📐 **Casos de Uso:** [`docs/sprint1/casos-de-uso/v1/`](docs/sprint1/casos-de-uso/v1/)
 * 📐 **Diagrama de Classes:** [`docs/sprint1/diagrama-classes/v1/`](docs/sprint1/diagrama-classes/v1/)
 * 📐 **Diagrama de Componentes:** [`docs/sprint1/diagrama-componentes/v1/`](docs/sprint1/diagrama-componentes/v1/)
 * 📋 **Modelo ER:** [`docs/sprint2/modelo-er/v1/`](docs/sprint2/modelo-er/v1/)
-* 🎞️ **Apresentação Sprint 3:** [`docs/sprint3/apresentacao/Sprint 3 - Arquitetura e Persistencia.pptx`](docs/sprint3/apresentacao/Sprint%203%20-%20Arquitetura%20e%20Persistencia.pptx)
+* 🎞️ **Apresentação Final (slides):** [`docs/sprint3/apresentacao/Apresentacao Final - Sistema de Moeda Estudantil.pptx`](docs/sprint3/apresentacao/Apresentacao%20Final%20-%20Sistema%20de%20Moeda%20Estudantil.pptx)
 * 📖 **User Stories:** [`docs/sprint1/user-stories.md`](docs/sprint1/user-stories.md)
 
 ---
@@ -109,8 +110,8 @@ Projeto acadêmico desenvolvido ao longo de 3 sprints aplicando metodologias ág
 - Edição de perfil
 
 ### 👨‍🏫 Professor
-- Login pré-cadastrado pela instituição de ensino
-- Recebimento de **1.000 moedas por semestre** (acumulativo)
+- Cadastrado no sistema pela empresa parceira (representando a instituição)
+- Recebimento de **1.000 moedas** ao ser cadastrado (acumulativo por semestre)
 - Envio de moedas para alunos com mensagem de reconhecimento obrigatória
 - Dashboard com saldo e últimos envios
 - Extrato completo de todas as distribuições realizadas
@@ -118,6 +119,7 @@ Projeto acadêmico desenvolvido ao longo de 3 sprints aplicando metodologias ág
 ### 🏢 Empresa Parceira
 - Cadastro com nome fantasia e CNPJ
 - CRUD completo de vantagens (nome, descrição, foto, custo em moedas)
+- **Cadastro de professores** no sistema (nome, CPF, departamento, instituição)
 - Dashboard com estatísticas das vantagens cadastradas
 - Notificação por e-mail ao receber um resgate (com código de confirmação)
 
@@ -248,10 +250,14 @@ Acesse: **[http://localhost:8080](http://localhost:8080)**
 | Professor | `professor@pucminas.br` | `professor123` | Pré-cadastrado (seed) |
 | Aluno | cadastre em `/auth/cadastro-aluno` | — | Auto-cadastro |
 | Empresa | cadastre em `/auth/cadastro-empresa` | — | Auto-cadastro |
+| Novos professores | — | — | Cadastrados pela empresa em `/empresa/professores` |
 
 O **DataInitializer** povoa automaticamente:
 - **5 instituições:** PUC Minas, UFMG, UFOP, UFSJ, CEFET-MG
 - **1 professor padrão** vinculado à PUC Minas com 1.000 moedas
+
+> Novos professores são cadastrados por uma **empresa parceira** logada, na tela
+> `/empresa/professores` — não existe perfil de administrador no sistema.
 
 ---
 
