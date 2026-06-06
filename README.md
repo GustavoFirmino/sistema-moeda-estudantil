@@ -37,7 +37,7 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-007ec6?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Compose-007ec6?style=for-the-badge&logo=docker&logoColor=white)
 ![Maven](https://img.shields.io/badge/Maven-3.9-007ec6?style=for-the-badge&logo=apachemaven&logoColor=white)
-![Versão](https://img.shields.io/badge/Versão-Sprint_3_Release_1-brightgreen?style=for-the-badge)
+![Versão](https://img.shields.io/badge/Versão-Lab04S02_Release_2-brightgreen?style=for-the-badge)
 ![Licença](https://img.shields.io/badge/Licença-MIT-007ec6?style=for-the-badge&logo=opensourceinitiative)
 
 ---
@@ -71,12 +71,13 @@
 * 🌐 **Aplicação:** [`http://localhost:8080`](http://localhost:8080) *(disponível com a aplicação rodando)*
 * 🩺 **Login:** [`http://localhost:8080/auth/login`](http://localhost:8080/auth/login)
 * 🖥️ **Apresentação do sistema (pública):** [`http://localhost:8080/apresentacao`](http://localhost:8080/apresentacao) — stack, entidades, diagramas, design e telas
-* 📐 **Casos de Uso:** [`docs/sprint1/casos-de-uso/v1/`](docs/sprint1/casos-de-uso/v1/)
-* 📐 **Diagrama de Classes:** [`docs/sprint1/diagrama-classes/v1/`](docs/sprint1/diagrama-classes/v1/)
-* 📐 **Diagrama de Componentes:** [`docs/sprint1/diagrama-componentes/v1/`](docs/sprint1/diagrama-componentes/v1/)
-* 📋 **Modelo ER:** [`docs/sprint2/modelo-er/v1/`](docs/sprint2/modelo-er/v1/)
-* 🎞️ **Apresentação Final (slides):** [`docs/sprint3/apresentacao/Apresentacao Final - Sistema de Moeda Estudantil.pptx`](docs/sprint3/apresentacao/Apresentacao%20Final%20-%20Sistema%20de%20Moeda%20Estudantil.pptx)
-* 📖 **User Stories:** [`docs/sprint1/user-stories.md`](docs/sprint1/user-stories.md)
+* 📐 **Casos de Uso:** [`docs/diagramas/casos-de-uso.puml`](docs/diagramas/casos-de-uso.puml)
+* 📐 **Diagrama de Classes:** [`docs/diagramas/diagrama-classes.puml`](docs/diagramas/diagrama-classes.puml)
+* 📐 **Diagrama de Componentes:** [`docs/diagramas/diagrama-componentes.puml`](docs/diagramas/diagrama-componentes.puml)
+* 📋 **Modelo ER:** [`docs/diagramas/modelo-er.puml`](docs/diagramas/modelo-er.puml)
+* 🔀 **Diagramas de Sequência (20 UCs):** [`docs/diagramas/sequencia/`](docs/diagramas/sequencia/)
+* 🎞️ **Apresentação Final (slides):** [`docs/apresentacao/`](docs/apresentacao/)
+* 📖 **User Stories:** [`docs/user-stories.md`](docs/user-stories.md)
 
 ---
 
@@ -200,10 +201,11 @@ O projeto segue a **Arquitetura MVC (Model-View-Controller)** com camada de serv
 
 | Diagrama | Fonte PlantUML | Preview |
 |---|---|---|
-| Casos de Uso | [`docs/sprint1/casos-de-uso/v1/casos-de-uso.puml`](docs/sprint1/casos-de-uso/v1/casos-de-uso.puml) | [`casos-de-uso.png`](docs/sprint1/casos-de-uso/v1/Casos%20de%20Uso%20-%20Sistema%20de%20Moeda%20Estudantil.png) |
-| Diagrama de Classes | [`docs/sprint1/diagrama-classes/v1/diagrama-classes.puml`](docs/sprint1/diagrama-classes/v1/diagrama-classes.puml) | [`diagrama-classes.png`](docs/sprint1/diagrama-classes/v1/Diagrama%20de%20Classes%20-%20Sistema%20de%20Moeda%20Estudantil.png) |
-| Diagrama de Componentes | [`docs/sprint1/diagrama-componentes/v1/diagrama-componentes.puml`](docs/sprint1/diagrama-componentes/v1/diagrama-componentes.puml) | [`diagrama-componentes.png`](docs/sprint1/diagrama-componentes/v1/Diagrama%20de%20Componentes%20-%20Sistema%20de%20Moeda%20Estudantil.png) |
-| Modelo ER | [`docs/sprint2/modelo-er/v1/modelo-er.puml`](docs/sprint2/modelo-er/v1/modelo-er.puml) | [`modelo-er.png`](docs/sprint2/modelo-er/v1/Modelo%20ER%20-%20Sistema%20de%20Moeda%20Estudantil.png) |
+| Casos de Uso | [`docs/diagramas/casos-de-uso.puml`](docs/diagramas/casos-de-uso.puml) | [`casos-de-uso.png`](docs/diagramas/casos-de-uso.png) |
+| Diagrama de Classes | [`docs/diagramas/diagrama-classes.puml`](docs/diagramas/diagrama-classes.puml) | [`diagrama-classes.png`](docs/diagramas/diagrama-classes.png) |
+| Diagrama de Componentes | [`docs/diagramas/diagrama-componentes.puml`](docs/diagramas/diagrama-componentes.puml) | [`diagrama-componentes.png`](docs/diagramas/diagrama-componentes.png) |
+| Modelo ER | [`docs/diagramas/modelo-er.puml`](docs/diagramas/modelo-er.puml) | [`modelo-er.png`](docs/diagramas/modelo-er.png) |
+| Diagramas de Sequência (20 UCs) | [`docs/diagramas/sequencia/`](docs/diagramas/sequencia/) | UC01–UC20 (`.puml` + `.png`) |
 
 > Para editar os arquivos `.puml`, instale o plugin **PlantUML** no VS Code e pressione `Alt+D` para preview ao vivo.
 > As imagens `.png` foram geradas automaticamente via `plantuml -tpng`.
@@ -383,17 +385,19 @@ sistema-moeda-estudantil/
 │       └── js/main.js
 │
 ├── docs/
-│   ├── sprint1/
-│   │   ├── casos-de-uso/
-│   │   │   └── v1/                 # casos-de-uso.puml + .png
-│   │   ├── diagrama-classes/
-│   │   │   └── v1/                 # diagrama-classes.puml + .png
-│   │   ├── diagrama-componentes/
-│   │   │   └── v1/                 # diagrama-componentes.puml + .png
-│   │   └── user-stories.md
-│   └── sprint2/
-│       └── modelo-er/
-│           └── v1/                 # modelo-er.puml + .png
+│   ├── diagramas/                  # Diagramas UML principais
+│   │   ├── casos-de-uso.puml + .png
+│   │   ├── diagrama-classes.puml + .png
+│   │   ├── diagrama-componentes.puml + .png
+│   │   ├── modelo-er.puml + .png
+│   │   └── sequencia/              # 20 diagramas de sequência (UC01–UC20)
+│   │       ├── uc01-fazer-login.puml + .png
+│   │       ├── uc02-fazer-logout.puml + .png
+│   │       └── ... (todos os 20 UCs)
+│   ├── apresentacao/               # Slides .pptx das sprints
+│   ├── screenshots/                # Capturas de tela das telas do sistema
+│   ├── images/                     # Logotipo
+│   └── user-stories.md
 │
 └── uploads/                        # Fotos de vantagens (gerado em runtime)
 ```
@@ -428,6 +432,9 @@ sistema-moeda-estudantil/
 | Lab03S01 | Casos de Uso, User Stories, Diagrama de Classes, Diagrama de Componentes | ✅ Concluído |
 | Lab03S02 | Modelo ER, estratégia ORM (JPA/Hibernate), CRUDs iniciais de aluno e empresa | ✅ Concluído |
 | Lab03S03 | CRUDs finais, integração completa, apresentação da arquitetura | ✅ Concluído |
+| Lab04S01 | Envio de moedas, consulta de extrato (professor e aluno), notificações por e-mail | ✅ Concluído |
+| Lab04S02 | 20 diagramas de sequência (UC01–UC20), cadastro e listagem de vantagens | ✅ Concluído |
+| Lab04S03 | Diagrama de Sequência Geral, resgate de vantagens pelo aluno | 🔜 Próximo |
 
 ---
 
