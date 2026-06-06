@@ -1,0 +1,96 @@
+@startuml UC08 - Resgatar Vantagem
+
+skinparam sequenceArrowThickness 2
+skinparam sequenceParticipant underline
+skinparam sequence {
+  ActorBackgroundColor #DBEAFE
+  ActorBorderColor #2563EB
+  ParticipantBackgroundColor #EEF2FF
+  ParticipantBorderColor #4F46E5
+  ArrowColor #4F46E5
+  LifeLineBorderColor #A5B4FC
+  LifeLineBackgroundColor #F8F9FF
+  BoxBackgroundColor #F0F4FF
+  BoxBorderColor #A5B4FC
+  NoteBackgroundColor #FFFBEB
+  NoteBorderColor #F59E0B
+}
+skinparam roundcorner 8
+
+title UC08 - Resgatar Vantagem
+
+actor "Aluno" as A
+box "Camada Web (MVC)" #F0F4FF
+  participant "AlunoController" as AC
+end box
+box "Camada de Serviço" #F0F9FF
+  participant "TransacaoService" as TS
+  participant "EmailService" as ES
+end box
+box "Camada de Persistência" #F0FFF4
+  participant "AlunoRepository" as AR
+  participant "VantagemRepository" as VR
+  participant "TransacaoResgateRepository" as TRR
+end box
+database "PostgreSQL" as DB
+
+A -> AC : POST /aluno/resgatar/{vantagemId}\n(confirma modal de resgate)
+activate AC
+
+AC -> TS : resgatarVantagem(alunoId, vantagemId)
+activate TS
+
+TS -> AR : findById(alunoId)
+activate AR
+AR -> DB : SELECT * FROM alunos WHERE id = ?
+DB --> AR : Aluno
+AR --> TS : Aluno
+deactivate AR
+
+TS -> VR : findById(vantagemId)
+activate VR
+VR -> DB : SELECT * FROM vantagens WHERE id = ?
+DB --> VR : Vantagem
+VR --> TS : Vantagem
+deactivate VR
+
+alt Vantagem inativa
+  TS --> AC : throws VantagemInativaException
+  AC --> A : Redireciona com erro\n"Vantagem não disponível"
+else Saldo insuficiente
+  TS --> AC : throws SaldoInsuficienteException
+  AC --> A : Redireciona com erro\n"Saldo insuficiente"
+else Resgate válido
+  TS -> TS : codigoCupom = UUID gerado\n(8 caracteres alfanuméricos)
+  TS -> AR : save(aluno com saldo - custo)
+  activate AR
+  AR -> DB : UPDATE alunos SET saldo_moedas = ? WHERE id = ?
+  DB --> AR : OK
+  AR --> TS : Aluno atualizado
+  deactivate AR
+
+  TS -> TRR : save(TransacaoResgate)
+  activate TRR
+  TRR -> DB : INSERT INTO transacoes\n(tipo='RESGATE', valor, data_hora,\naluno_resgate_id, vantagem_id, codigo_cupom)
+  DB --> TRR : TransacaoResgate persistida
+  TRR --> TS : TransacaoResgate
+  deactivate TRR
+
+  TS -> ES : enviarCupomAluno(aluno, vantagem, codigoCupom)
+  activate ES
+  ES --> TS : E-mail enviado ao aluno
+  deactivate ES
+
+  TS -> ES : enviarNotificacaoEmpresa(empresa, aluno, vantagem, codigoCupom)
+  activate ES
+  ES --> TS : E-mail enviado à empresa parceira
+  deactivate ES
+
+  TS --> AC : Resgate concluído
+  deactivate TS
+  AC --> A : Redireciona para /aluno/vantagens\n"Vantagem resgatada! Verifique seu e-mail."
+end
+
+deactivate AC
+
+@enduml

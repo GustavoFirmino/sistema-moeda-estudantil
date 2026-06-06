@@ -1,0 +1,91 @@
+@startuml UC15 - Editar Vantagem
+
+skinparam sequenceArrowThickness 2
+skinparam sequenceParticipant underline
+skinparam sequence {
+  ActorBackgroundColor #DBEAFE
+  ActorBorderColor #2563EB
+  ParticipantBackgroundColor #EEF2FF
+  ParticipantBorderColor #4F46E5
+  ArrowColor #4F46E5
+  LifeLineBorderColor #A5B4FC
+  LifeLineBackgroundColor #F8F9FF
+  BoxBackgroundColor #F0F4FF
+  BoxBorderColor #A5B4FC
+  NoteBackgroundColor #FFFBEB
+  NoteBorderColor #F59E0B
+}
+skinparam roundcorner 8
+
+title UC15 - Editar Vantagem (Empresa Parceira)
+
+actor "Empresa\nParceira" as E
+box "Camada Web (MVC)" #F0F4FF
+  participant "EmpresaParceiraController" as EPC
+end box
+box "Camada de Serviço" #F0F9FF
+  participant "EmpresaParceiraService" as EPS
+  participant "VantagemService" as VS
+end box
+box "Camada de Persistência" #F0FFF4
+  participant "VantagemRepository" as VR
+end box
+database "PostgreSQL" as DB
+collections "Sistema de\nArquivos" as FS
+
+E -> EPC : GET /empresa/vantagens/{id}/editar
+activate EPC
+EPC -> EPS : buscarPorEmail(email)
+activate EPS
+EPS --> EPC : EmpresaParceira
+deactivate EPS
+EPC -> VS : buscarPorId(id)
+activate VS
+VS -> VR : findById(id)
+activate VR
+VR -> DB : SELECT * FROM vantagens WHERE id = ?
+DB --> VR : Vantagem
+VR --> VS : Optional<Vantagem>
+deactivate VR
+VS --> EPC : Vantagem (verificada ownership)
+deactivate VS
+EPC --> E : Renderiza formulário\npré-preenchido com dados atuais
+deactivate EPC
+
+E -> EPC : POST /empresa/vantagens/{id}\n(nome, descrição, custo, foto?)
+activate EPC
+EPC -> EPS : buscarPorEmail(email)
+activate EPS
+EPS --> EPC : EmpresaParceira
+deactivate EPS
+EPC -> VS : buscarPorId(id) — verifica ownership
+activate VS
+VS --> EPC : Vantagem (pertence à empresa)
+deactivate VS
+
+EPC -> VS : atualizar(vantagem, foto)
+activate VS
+VS -> VR : findById(id)
+activate VR
+VR -> DB : SELECT * FROM vantagens WHERE id = ?
+DB --> VR : Vantagem existente
+VR --> VS : Vantagem
+deactivate VR
+VS -> VS : atualiza nome, descrição, custo
+alt Nova foto enviada
+  VS -> FS : salvar nova foto (UUID)
+  FS --> VS : nova fotoUrl
+  VS -> VS : existente.setFotoUrl(novaUrl)
+end
+VS -> VR : save(Vantagem atualizada)
+activate VR
+VR -> DB : UPDATE vantagens SET nome=?,\ndescricao=?, custo_moedas=?,\nfoto_url=? WHERE id=?
+DB --> VR : OK
+VR --> VS : Vantagem salva
+deactivate VR
+VS --> EPC : Vantagem atualizada
+deactivate VS
+EPC --> E : Redireciona para /empresa/vantagens\n"Vantagem atualizada com sucesso!"
+deactivate EPC
+
+@enduml

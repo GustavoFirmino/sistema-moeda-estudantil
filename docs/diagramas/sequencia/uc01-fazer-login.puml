@@ -1,0 +1,64 @@
+@startuml UC01 - Fazer Login
+
+skinparam sequenceArrowThickness 2
+skinparam sequenceParticipant underline
+skinparam sequence {
+  ActorBackgroundColor #DBEAFE
+  ActorBorderColor #2563EB
+  ParticipantBackgroundColor #EEF2FF
+  ParticipantBorderColor #4F46E5
+  ArrowColor #4F46E5
+  LifeLineBorderColor #A5B4FC
+  LifeLineBackgroundColor #F8F9FF
+  BoxBackgroundColor #F0F4FF
+  BoxBorderColor #A5B4FC
+  NoteBackgroundColor #FFFBEB
+  NoteBorderColor #F59E0B
+}
+skinparam roundcorner 8
+
+title UC01 - Fazer Login
+
+actor "Usuário\n(Aluno/Professor/Empresa)" as U
+box "Camada Web (MVC)" #F0F4FF
+  participant "Spring Security\n(UsernamePasswordFilter)" as SS
+end box
+box "Camada de Serviço" #F0F9FF
+  participant "UserDetailsServiceImpl" as UDS
+end box
+box "Camada de Persistência" #F0FFF4
+  participant "UsuarioRepository" as UR
+end box
+database "PostgreSQL" as DB
+
+U -> SS : GET /auth/login
+activate SS
+SS --> U : Renderiza formulário de login
+deactivate SS
+
+U -> SS : POST /auth/login\n(email, senha)
+activate SS
+
+SS -> UDS : loadUserByUsername(email)
+activate UDS
+UDS -> UR : findByEmail(email)
+activate UR
+UR -> DB : SELECT * FROM usuarios WHERE email = ?
+DB --> UR : Usuario
+UR --> UDS : Optional<Usuario>
+deactivate UR
+UDS --> SS : UserDetails (senha BCrypt, roles)
+deactivate UDS
+
+SS -> SS : BCryptPasswordEncoder.matches()\n(valida senha informada vs hash)
+
+alt Credenciais inválidas
+  SS --> U : Redireciona para /auth/login?error
+else Autenticado com sucesso
+  SS -> SS : Cria SecurityContext\ne sessão HTTP
+  SS --> U : Redireciona por papel:\nALUNO → /aluno/dashboard\nPROFESSOR → /professor/dashboard\nEMPRESA → /empresa/dashboard
+end
+
+deactivate SS
+
+@enduml

@@ -1,0 +1,64 @@
+@startuml UC13 - Visualizar Dashboard da Empresa Parceira
+
+skinparam sequenceArrowThickness 2
+skinparam sequenceParticipant underline
+skinparam sequence {
+  ActorBackgroundColor #DBEAFE
+  ActorBorderColor #2563EB
+  ParticipantBackgroundColor #EEF2FF
+  ParticipantBorderColor #4F46E5
+  ArrowColor #4F46E5
+  LifeLineBorderColor #A5B4FC
+  LifeLineBackgroundColor #F8F9FF
+  BoxBackgroundColor #F0F4FF
+  BoxBorderColor #A5B4FC
+  NoteBackgroundColor #FFFBEB
+  NoteBorderColor #F59E0B
+}
+skinparam roundcorner 8
+
+title UC13 - Visualizar Dashboard da Empresa Parceira
+
+actor "Empresa\nParceira" as E
+box "Camada Web (MVC)" #F0F4FF
+  participant "EmpresaParceiraController" as EPC
+end box
+box "Camada de Serviço" #F0F9FF
+  participant "EmpresaParceiraService" as EPS
+  participant "VantagemService" as VS
+end box
+box "Camada de Persistência" #F0FFF4
+  participant "EmpresaParceiraRepository" as EPR
+  participant "VantagemRepository" as VR
+end box
+database "PostgreSQL" as DB
+
+E -> EPC : GET /empresa/dashboard
+activate EPC
+
+EPC -> EPS : buscarPorEmail(email)
+activate EPS
+EPS -> EPR : findByEmail(email)
+activate EPR
+EPR -> DB : SELECT * FROM empresas_parceiras WHERE email = ?
+DB --> EPR : EmpresaParceira
+EPR --> EPS : Optional<EmpresaParceira>
+deactivate EPR
+EPS --> EPC : EmpresaParceira
+deactivate EPS
+
+EPC -> VS : listarPorEmpresa(empresa.getId())
+activate VS
+VS -> VR : findByEmpresaParceiraId(empresaId)
+activate VR
+VR -> DB : SELECT * FROM vantagens WHERE empresa_parceira_id = ?
+DB --> VR : List<Vantagem>
+VR --> VS : List<Vantagem>
+deactivate VR
+VS --> EPC : List<Vantagem>
+deactivate VS
+
+EPC --> E : Renderiza dashboard com:\n- Dados da empresa (nome, CNPJ)\n- Lista de vantagens (ativas e inativas)\n- Contadores e status
+deactivate EPC
+
+@enduml

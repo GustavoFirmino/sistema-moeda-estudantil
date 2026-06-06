@@ -1,0 +1,84 @@
+@startuml UC06 - Consultar Extrato do Aluno
+
+skinparam sequenceArrowThickness 2
+skinparam sequenceParticipant underline
+skinparam sequence {
+  ActorBackgroundColor #DBEAFE
+  ActorBorderColor #2563EB
+  ParticipantBackgroundColor #EEF2FF
+  ParticipantBorderColor #4F46E5
+  ArrowColor #4F46E5
+  LifeLineBorderColor #A5B4FC
+  LifeLineBackgroundColor #F8F9FF
+  BoxBackgroundColor #F0F4FF
+  BoxBorderColor #A5B4FC
+  NoteBackgroundColor #FFFBEB
+  NoteBorderColor #F59E0B
+}
+skinparam roundcorner 8
+
+title UC06 - Consultar Extrato do Aluno
+
+actor "Aluno" as A
+box "Camada Web (MVC)" #F0F4FF
+  participant "AlunoController" as AC
+end box
+box "Camada de Serviço" #F0F9FF
+  participant "AlunoService" as AS
+  participant "TransacaoService" as TS
+end box
+box "Camada de Persistência" #F0FFF4
+  participant "AlunoRepository" as AR
+  participant "TransacaoEnvioRepository" as TER
+  participant "TransacaoResgateRepository" as TRR
+end box
+database "PostgreSQL" as DB
+
+A -> AC : GET /aluno/extrato
+activate AC
+
+AC -> AS : buscarPorEmail(email)
+activate AS
+AS -> AR : findByEmail(email)
+activate AR
+AR -> DB : SELECT * FROM alunos WHERE email = ?
+DB --> AR : Aluno
+AR --> AS : Optional<Aluno>
+deactivate AR
+AS --> AC : Aluno
+deactivate AS
+
+AC -> TS : extratoRecebimentosAluno(alunoId)
+activate TS
+TS -> TER : findByAlunoIdOrderByDataHoraDesc(alunoId)
+activate TER
+TER -> DB : SELECT t.* FROM transacoes t\nWHERE t.aluno_id = ?\nAND t.tipo_transacao = 'ENVIO'\nORDER BY data_hora DESC
+DB --> TER : List<TransacaoEnvio>
+TER --> TS : List<TransacaoEnvio>
+deactivate TER
+TS --> AC : List<TransacaoEnvio> (recebimentos)
+deactivate TS
+
+AC -> TS : extratoResgatesAluno(alunoId)
+activate TS
+TS -> TRR : findByAlunoIdOrderByDataHoraDesc(alunoId)
+activate TRR
+TRR -> DB : SELECT t.* FROM transacoes t\nWHERE t.aluno_resgate_id = ?\nAND t.tipo_transacao = 'RESGATE'\nORDER BY data_hora DESC
+DB --> TRR : List<TransacaoResgate>
+TRR --> TS : List<TransacaoResgate>
+deactivate TRR
+TS --> AC : List<TransacaoResgate> (resgates)
+deactivate TS
+
+AC --> A : Renderiza extrato com:\n- Saldo atual\n- Moedas recebidas (professor, valor, mensagem, data)\n- Resgates de vantagens (nome, empresa, cupom, valor, data)
+
+deactivate AC
+
+note over A, DB
+  O extrato apresenta dois blocos:
+  1. Moedas Recebidas — TransacaoEnvio (professor → aluno)
+  2. Resgates de Vantagens — TransacaoResgate (aluno → vantagem)
+  Ambos ordenados por data/hora decrescente.
+end note
+
+@enduml

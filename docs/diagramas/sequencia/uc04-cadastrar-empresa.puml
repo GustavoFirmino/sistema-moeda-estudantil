@@ -1,0 +1,88 @@
+@startuml UC04 - Cadastrar Empresa Parceira
+
+skinparam sequenceArrowThickness 2
+skinparam sequenceParticipant underline
+skinparam sequence {
+  ActorBackgroundColor #DBEAFE
+  ActorBorderColor #2563EB
+  ParticipantBackgroundColor #EEF2FF
+  ParticipantBorderColor #4F46E5
+  ArrowColor #4F46E5
+  LifeLineBorderColor #A5B4FC
+  LifeLineBackgroundColor #F8F9FF
+  BoxBackgroundColor #F0F4FF
+  BoxBorderColor #A5B4FC
+  NoteBackgroundColor #FFFBEB
+  NoteBorderColor #F59E0B
+}
+skinparam roundcorner 8
+
+title UC04 - Cadastrar-se (Empresa Parceira)
+
+actor "Empresa\nParceira" as E
+box "Camada Web (MVC)" #F0F4FF
+  participant "AuthController" as AC
+end box
+box "Camada de Serviço" #F0F9FF
+  participant "EmpresaParceiraService" as EPS
+end box
+box "Camada de Persistência" #F0FFF4
+  participant "UsuarioRepository" as UR
+  participant "EmpresaParceiraRepository" as EPR
+end box
+database "PostgreSQL" as DB
+
+E -> AC : GET /auth/cadastro-empresa
+activate AC
+AC --> E : Renderiza formulário\n(nomeFantasia, email, senha, CNPJ)
+deactivate AC
+
+E -> AC : POST /auth/cadastro-empresa\n(CadastroEmpresaDTO)
+activate AC
+AC -> AC : Valida DTO\n(Bean Validation)
+
+alt Dados inválidos
+  AC --> E : Retorna formulário com erros
+else Dados válidos
+  AC -> EPS : cadastrar(dto)
+  activate EPS
+
+  EPS -> UR : existsByEmail(email)
+  activate UR
+  UR -> DB : SELECT COUNT(*) FROM usuarios\nWHERE email = ?
+  DB --> UR : 0 ou 1
+  UR --> EPS : boolean
+  deactivate UR
+
+  alt E-mail já cadastrado
+    EPS --> AC : throws EmailJaCadastradoException
+    AC --> E : Formulário com erro
+  else E-mail disponível
+    EPS -> EPR : existsByCnpj(cnpj)
+    activate EPR
+    EPR -> DB : SELECT COUNT(*) FROM empresas_parceiras\nWHERE cnpj = ?
+    DB --> EPR : 0 ou 1
+    EPR --> EPS : boolean
+    deactivate EPR
+
+    alt CNPJ já cadastrado
+      EPS --> AC : throws CpfCnpjJaCadastradoException
+      AC --> E : Formulário com erro
+    else CNPJ disponível
+      EPS -> EPS : BCryptPasswordEncoder.encode(senha)
+      EPS -> EPR : save(EmpresaParceira)
+      activate EPR
+      EPR -> DB : INSERT INTO usuarios\n+ INSERT INTO empresas_parceiras
+      DB --> EPR : EmpresaParceira persistida
+      EPR --> EPS : EmpresaParceira
+      deactivate EPR
+      EPS --> AC : EmpresaParceira criada
+      deactivate EPS
+      AC --> E : Redireciona para /auth/login\ncom mensagem de sucesso
+    end
+  end
+end
+
+deactivate AC
+
+@enduml

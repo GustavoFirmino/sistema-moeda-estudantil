@@ -1,0 +1,81 @@
+@startuml UC16 - Desativar Vantagem
+
+skinparam sequenceArrowThickness 2
+skinparam sequenceParticipant underline
+skinparam sequence {
+  ActorBackgroundColor #DBEAFE
+  ActorBorderColor #2563EB
+  ParticipantBackgroundColor #EEF2FF
+  ParticipantBorderColor #4F46E5
+  ArrowColor #4F46E5
+  LifeLineBorderColor #A5B4FC
+  LifeLineBackgroundColor #F8F9FF
+  BoxBackgroundColor #F0F4FF
+  BoxBorderColor #A5B4FC
+  NoteBackgroundColor #FFFBEB
+  NoteBorderColor #F59E0B
+}
+skinparam roundcorner 8
+
+title UC16 - Desativar Vantagem (Empresa Parceira)
+
+actor "Empresa\nParceira" as E
+box "Camada Web (MVC)" #F0F4FF
+  participant "EmpresaParceiraController" as EPC
+end box
+box "Camada de Serviço" #F0F9FF
+  participant "EmpresaParceiraService" as EPS
+  participant "VantagemService" as VS
+end box
+box "Camada de Persistência" #F0FFF4
+  participant "VantagemRepository" as VR
+end box
+database "PostgreSQL" as DB
+
+E -> EPC : POST /empresa/vantagens/{id}/desativar
+activate EPC
+
+EPC -> EPS : buscarPorEmail(email)
+activate EPS
+EPS --> EPC : EmpresaParceira autenticada
+deactivate EPS
+
+EPC -> VS : buscarPorId(id)
+activate VS
+VS -> VR : findById(id)
+activate VR
+VR -> DB : SELECT * FROM vantagens WHERE id = ?
+DB --> VR : Vantagem
+VR --> VS : Optional<Vantagem>
+deactivate VR
+VS --> EPC : Vantagem (verifica se pertence à empresa)
+deactivate VS
+
+EPC -> VS : desativar(id)
+activate VS
+VS -> VR : findById(id)
+activate VR
+VR -> DB : SELECT * FROM vantagens WHERE id = ?
+DB --> VR : Vantagem
+VR --> VS : Vantagem
+deactivate VR
+VS -> VS : vantagem.setAtiva(false)
+VS -> VR : save(vantagem)
+activate VR
+VR -> DB : UPDATE vantagens SET ativa = false WHERE id = ?
+DB --> VR : OK
+VR --> VS : Vantagem desativada
+deactivate VR
+VS --> EPC : OK
+deactivate VS
+
+EPC --> E : Redireciona para /empresa/vantagens\n"Vantagem desativada."
+deactivate EPC
+
+note over E, DB
+  Soft-delete: ativa = false.
+  A vantagem não é excluída do banco,
+  apenas deixa de aparecer no catálogo do aluno.
+end note
+
+@enduml

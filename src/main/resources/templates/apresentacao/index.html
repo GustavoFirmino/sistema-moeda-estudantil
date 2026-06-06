@@ -89,6 +89,24 @@
                     </div>
                 </div>
             </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-4 h-100">
+                    <div class="card-body p-4">
+                        <span class="badge bg-success mb-2">Lab04S01 · Concluído</span>
+                        <p class="text-muted small mb-0">Envio de moedas (professor → aluno) e consulta de
+                            extrato com notificações por e-mail.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-4 h-100">
+                    <div class="card-body p-4">
+                        <span class="badge bg-success mb-2">Lab04S02 · Concluído</span>
+                        <p class="text-muted small mb-0">Diagramas de sequência (UC06, UC07, UC11, UC12,
+                            UC14), cadastro e listagem de vantagens.</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -168,6 +186,49 @@
                         <span class="badge bg-primary-subtle text-primary mb-2" th:text="${dg.s}">Sprint</span>
                         <h5 class="fw-bold" th:text="${dg.t}">Título</h5>
                         <p class="text-muted small mb-0" th:text="${dg.d}">Descrição</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Diagramas de Sequência — Lab04S02 (20 UCs) -->
+    <section class="mb-5">
+        <h2 class="fw-bold mb-4"><i class="fas fa-arrows-left-right text-primary me-2"></i>Diagramas de Sequência <span class="badge bg-success ms-2 fs-6">Lab04S02</span></h2>
+        <p class="text-muted mb-4">Um diagrama por caso de uso (20 no total), cobrindo o fluxo completo Browser → Controller → Service → Repository → PostgreSQL conforme a arquitetura MVC.</p>
+        <div class="row g-4"
+             th:with="seqs=${ {
+                {'img':'seq-uc01-fazer-login.png','t':'UC01 — Fazer Login','s':'Lab03S01','d':'Spring Security intercepta o POST, valida as credenciais via BCrypt e redireciona para o dashboard conforme o papel (ALUNO, PROFESSOR ou EMPRESA).'},
+                {'img':'seq-uc02-fazer-logout.png','t':'UC02 — Fazer Logout','s':'Lab03S01','d':'Invalida a sessão HTTP e limpa o SecurityContext, redirecionando para a tela de login.'},
+                {'img':'seq-uc03-cadastrar-aluno.png','t':'UC03 — Cadastrar Aluno','s':'Lab03S02','d':'Aluno preenche dados pessoais e seleciona instituição. O sistema valida unicidade de e-mail e CPF, codifica a senha com BCrypt e persiste nas tabelas usuarios + alunos.'},
+                {'img':'seq-uc04-cadastrar-empresa.png','t':'UC04 — Cadastrar Empresa','s':'Lab03S02','d':'Empresa informa nome fantasia, e-mail, CNPJ e senha. Validações de unicidade antes de persistir em usuarios + empresas_parceiras.'},
+                {'img':'seq-uc05-dashboard-aluno.png','t':'UC05 — Dashboard do Aluno','s':'Lab03S03','d':'Exibe saldo atual e os 5 recebimentos mais recentes. Combina AlunoService e TransacaoService para compor a visão.'},
+                {'img':'seq-uc06-extrato-aluno.png','t':'UC06 — Extrato do Aluno','s':'Lab04S01','d':'Lista completa de recebimentos (TransacaoEnvio) e resgates (TransacaoResgate), ambos ordenados por data/hora decrescente.'},
+                {'img':'seq-uc07-listar-vantagens.png','t':'UC07 — Listar Vantagens','s':'Lab04S02','d':'Catálogo de vantagens ativas (ativa = true). Botão "Resgatar" desabilitado automaticamente se o saldo do aluno for insuficiente.'},
+                {'img':'seq-uc08-resgatar-vantagem.png','t':'UC08 — Resgatar Vantagem','s':'Lab04S03','d':'Valida saldo e status da vantagem, gera cupom UUID de 8 caracteres, debita o aluno, persiste TransacaoResgate e dispara e-mails para aluno e empresa.'},
+                {'img':'seq-uc09-editar-perfil-aluno.png','t':'UC09 — Editar Perfil (Aluno)','s':'Lab03S02','d':'Aluno atualiza nome, RG, endereço e curso. O controller preserva o ID do usuário autenticado antes de salvar.'},
+                {'img':'seq-uc10-dashboard-professor.png','t':'UC10 — Dashboard do Professor','s':'Lab03S03','d':'Exibe saldo de moedas disponível e os 5 últimos envios realizados, consumindo ProfessorService e TransacaoService.'},
+                {'img':'seq-uc11-enviar-moedas.png','t':'UC11 — Enviar Moedas','s':'Lab04S01','d':'Valida saldo do professor, debita e credita os saldos atomicamente, persiste TransacaoEnvio e envia e-mail de notificação ao aluno.'},
+                {'img':'seq-uc12-extrato-professor.png','t':'UC12 — Extrato do Professor','s':'Lab04S01','d':'Histórico completo de TransacaoEnvio do professor, com aluno destinatário, valor, mensagem e data, ordenado por recência.'},
+                {'img':'seq-uc13-dashboard-empresa.png','t':'UC13 — Dashboard da Empresa','s':'Lab03S03','d':'Exibe dados da empresa e a lista completa de vantagens (ativas e inativas) com contadores de status.'},
+                {'img':'seq-uc14-cadastrar-vantagem.png','t':'UC14 — Cadastrar Vantagem','s':'Lab04S02','d':'Empresa cadastra nome, descrição, custo e foto. A foto é salva no sistema de arquivos com nome UUID; a vantagem é associada à empresa e persistida.'},
+                {'img':'seq-uc15-editar-vantagem.png','t':'UC15 — Editar Vantagem','s':'Lab04S02','d':'Empresa edita os campos da vantagem. Verifica ownership antes de permitir a edição. Nova foto substitui a anterior se enviada.'},
+                {'img':'seq-uc16-desativar-vantagem.png','t':'UC16 — Desativar Vantagem','s':'Lab04S02','d':'Soft-delete: seta ativa = false. A vantagem não é excluída do banco e deixa de aparecer no catálogo do aluno.'},
+                {'img':'seq-uc17-editar-perfil-empresa.png','t':'UC17 — Editar Perfil (Empresa)','s':'Lab03S02','d':'Empresa atualiza o nome fantasia. O controller preserva o ID da empresa autenticada antes de salvar.'},
+                {'img':'seq-uc18-notificar-recebimento.png','t':'UC18 — Notificar Recebimento (Email)','s':'Lab04S01','d':'Subfluxo de UC11. EmailService monta e envia e-mail ao aluno com nome do professor, valor e mensagem de reconhecimento.'},
+                {'img':'seq-uc19-cupom-aluno.png','t':'UC19 — Cupom ao Aluno (Email)','s':'Lab04S03','d':'Subfluxo de UC08. EmailService envia o código do cupom ao aluno para uso na troca presencial na empresa parceira.'},
+                {'img':'seq-uc20-notificar-empresa.png','t':'UC20 — Notificar Empresa (Email)','s':'Lab04S03','d':'Subfluxo de UC08. EmailService notifica a empresa com nome/e-mail do aluno e código do cupom para conferência do resgate.'}
+             } }">
+            <div class="col-lg-6" th:each="seq : ${seqs}">
+                <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
+                    <div class="bg-light border-bottom p-3 text-center">
+                        <img th:src="@{'/img/diagrams/' + ${seq.img}}" th:alt="${seq.t}"
+                             class="img-fluid rounded" style="max-height:300px"/>
+                    </div>
+                    <div class="card-body p-4">
+                        <span class="badge bg-primary-subtle text-primary mb-2" th:text="${seq.s}">Sprint</span>
+                        <h5 class="fw-bold" th:text="${seq.t}">Título</h5>
+                        <p class="text-muted small mb-0" th:text="${seq.d}">Descrição</p>
                     </div>
                 </div>
             </div>

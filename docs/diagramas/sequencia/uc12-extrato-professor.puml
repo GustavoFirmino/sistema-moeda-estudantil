@@ -1,0 +1,71 @@
+@startuml UC12 - Consultar Extrato de Envios do Professor
+
+skinparam sequenceArrowThickness 2
+skinparam sequenceParticipant underline
+skinparam sequence {
+  ActorBackgroundColor #DBEAFE
+  ActorBorderColor #2563EB
+  ParticipantBackgroundColor #EEF2FF
+  ParticipantBorderColor #4F46E5
+  ArrowColor #4F46E5
+  LifeLineBorderColor #A5B4FC
+  LifeLineBackgroundColor #F8F9FF
+  BoxBackgroundColor #F0F4FF
+  BoxBorderColor #A5B4FC
+  NoteBackgroundColor #FFFBEB
+  NoteBorderColor #F59E0B
+}
+skinparam roundcorner 8
+
+title UC12 - Consultar Extrato de Envios do Professor
+
+actor "Professor" as P
+box "Camada Web (MVC)" #F0F4FF
+  participant "ProfessorController" as PC
+end box
+box "Camada de Serviço" #F0F9FF
+  participant "ProfessorService" as PS
+  participant "TransacaoService" as TS
+end box
+box "Camada de Persistência" #F0FFF4
+  participant "ProfessorRepository" as PR
+  participant "TransacaoEnvioRepository" as TER
+end box
+database "PostgreSQL" as DB
+
+P -> PC : GET /professor/extrato
+activate PC
+
+PC -> PS : buscarPorEmail(email)
+activate PS
+PS -> PR : findByEmail(email)
+activate PR
+PR -> DB : SELECT * FROM professores WHERE email = ?
+DB --> PR : Professor
+PR --> PS : Optional<Professor>
+deactivate PR
+PS --> PC : Professor
+deactivate PS
+
+PC -> TS : extratoEnviosProfessor(professorId)
+activate TS
+TS -> TER : findByProfessorIdOrderByDataHoraDesc(professorId)
+activate TER
+TER -> DB : SELECT t.* FROM transacoes t\nWHERE t.professor_id = ?\nAND t.tipo_transacao = 'ENVIO'\nORDER BY data_hora DESC
+DB --> TER : List<TransacaoEnvio>
+TER --> TS : List<TransacaoEnvio>
+deactivate TER
+TS --> PC : List<TransacaoEnvio> (envios realizados)
+deactivate TS
+
+PC --> P : Renderiza extrato com:\n- Saldo atual de moedas\n- Histórico de envios\n  (aluno destinatário, valor, mensagem, data)
+
+deactivate PC
+
+note over P, DB
+  O extrato do professor exibe apenas
+  as TransacaoEnvio em que ele é o remetente,
+  ordenadas da mais recente para a mais antiga.
+end note
+
+@enduml

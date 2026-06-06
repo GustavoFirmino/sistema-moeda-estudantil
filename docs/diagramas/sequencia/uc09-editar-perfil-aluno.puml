@@ -1,0 +1,69 @@
+@startuml UC09 - Editar Perfil do Aluno
+
+skinparam sequenceArrowThickness 2
+skinparam sequenceParticipant underline
+skinparam sequence {
+  ActorBackgroundColor #DBEAFE
+  ActorBorderColor #2563EB
+  ParticipantBackgroundColor #EEF2FF
+  ParticipantBorderColor #4F46E5
+  ArrowColor #4F46E5
+  LifeLineBorderColor #A5B4FC
+  LifeLineBackgroundColor #F8F9FF
+  BoxBackgroundColor #F0F4FF
+  BoxBorderColor #A5B4FC
+  NoteBackgroundColor #FFFBEB
+  NoteBorderColor #F59E0B
+}
+skinparam roundcorner 8
+
+title UC09 - Editar Perfil do Aluno
+
+actor "Aluno" as A
+box "Camada Web (MVC)" #F0F4FF
+  participant "AlunoController" as AC
+end box
+box "Camada de Serviço" #F0F9FF
+  participant "AlunoService" as AS
+end box
+box "Camada de Persistência" #F0FFF4
+  participant "AlunoRepository" as AR
+end box
+database "PostgreSQL" as DB
+
+A -> AC : GET /aluno/perfil
+activate AC
+AC -> AS : buscarPorEmail(email)
+activate AS
+AS -> AR : findByEmail(email)
+activate AR
+AR -> DB : SELECT * FROM alunos WHERE email = ?
+DB --> AR : Aluno
+AR --> AS : Optional<Aluno>
+deactivate AR
+AS --> AC : Aluno
+deactivate AS
+AC --> A : Renderiza formulário de perfil\n(nome, RG, endereço, curso)
+deactivate AC
+
+A -> AC : POST /aluno/perfil\n(nome, rg, endereco, curso)
+activate AC
+AC -> AS : buscarPorEmail(email)
+activate AS
+AS --> AC : Aluno atual
+deactivate AS
+AC -> AC : alunoForm.setId(aluno.getId())
+AC -> AS : atualizar(alunoForm)
+activate AS
+AS -> AR : save(Aluno atualizado)
+activate AR
+AR -> DB : UPDATE alunos SET nome=?, rg=?,\nendereco=?, curso=? WHERE id=?
+DB --> AR : OK
+AR --> AS : Aluno salvo
+deactivate AR
+AS --> AC : OK
+deactivate AS
+AC --> A : Redireciona para /aluno/perfil\n"Perfil atualizado com sucesso!"
+deactivate AC
+
+@enduml

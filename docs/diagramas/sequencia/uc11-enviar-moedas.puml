@@ -1,0 +1,110 @@
+@startuml UC11 - Enviar Moedas para Aluno
+
+skinparam sequenceArrowThickness 2
+skinparam sequenceParticipant underline
+skinparam sequence {
+  ActorBackgroundColor #DBEAFE
+  ActorBorderColor #2563EB
+  ParticipantBackgroundColor #EEF2FF
+  ParticipantBorderColor #4F46E5
+  ArrowColor #4F46E5
+  LifeLineBorderColor #A5B4FC
+  LifeLineBackgroundColor #F8F9FF
+  BoxBackgroundColor #F0F4FF
+  BoxBorderColor #A5B4FC
+  NoteBackgroundColor #FFFBEB
+  NoteBorderColor #F59E0B
+}
+skinparam roundcorner 8
+
+title UC11 - Enviar Moedas para Aluno
+
+actor "Professor" as P
+box "Camada Web (MVC)" #F0F4FF
+  participant "ProfessorController" as PC
+end box
+box "Camada de Serviço" #F0F9FF
+  participant "TransacaoService" as TS
+  participant "EmailService" as ES
+end box
+box "Camada de Persistência" #F0FFF4
+  participant "ProfessorRepository" as PR
+  participant "AlunoRepository" as AR
+  participant "TransacaoEnvioRepository" as TER
+end box
+database "PostgreSQL" as DB
+
+== Exibir Formulário ==
+
+P -> PC : GET /professor/enviar-moedas
+activate PC
+PC -> PR : findByEmail(email)
+activate PR
+PR -> DB : SELECT * FROM professores WHERE email = ?
+DB --> PR : Professor
+PR --> PC : Optional<Professor>
+deactivate PR
+PC --> P : Renderiza formulário\n(lista de alunos + saldo atual)
+deactivate PC
+
+== Enviar Moedas ==
+
+P -> PC : POST /professor/enviar-moedas\n(alunoId, valor, mensagem)
+activate PC
+
+PC -> TS : enviarMoedas(professorId, alunoId, valor, mensagem)
+activate TS
+
+TS -> PR : findById(professorId)
+activate PR
+PR -> DB : SELECT * FROM professores WHERE id = ?
+DB --> PR : Professor
+PR --> TS : Professor
+deactivate PR
+
+alt Saldo insuficiente
+  TS --> PC : throws IllegalArgumentException\n("Saldo insuficiente")
+  PC --> P : Redireciona com mensagem de erro
+else Saldo suficiente
+  TS -> AR : findById(alunoId)
+  activate AR
+  AR -> DB : SELECT * FROM alunos WHERE id = ?
+  DB --> AR : Aluno
+  AR --> TS : Aluno
+  deactivate AR
+
+  TS -> PR : save(professor com saldo - valor)
+  activate PR
+  PR -> DB : UPDATE professores SET saldo_moedas = ? WHERE id = ?
+  DB --> PR : OK
+  PR --> TS : Professor atualizado
+  deactivate PR
+
+  TS -> AR : save(aluno com saldo + valor)
+  activate AR
+  AR -> DB : UPDATE alunos SET saldo_moedas = ? WHERE id = ?
+  DB --> AR : OK
+  AR --> TS : Aluno atualizado
+  deactivate AR
+
+  TS -> TER : save(TransacaoEnvio)
+  activate TER
+  TER -> DB : INSERT INTO transacoes\n(tipo, valor, data_hora, professor_id,\naluno_id, mensagem)
+  DB --> TER : TransacaoEnvio persistida
+  TER --> TS : TransacaoEnvio
+  deactivate TER
+
+  TS -> ES : enviarRecebimentoMoedas(aluno, professor, valor, mensagem)
+  activate ES
+  ES --> TS : Email enviado ao aluno
+  deactivate ES
+
+  TS --> PC : Transação concluída
+  deactivate TS
+
+  PC --> P : Redireciona com sucesso\n("Moedas enviadas com sucesso!")
+end
+
+deactivate PC
+
+@enduml

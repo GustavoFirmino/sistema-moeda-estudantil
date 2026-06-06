@@ -1,0 +1,69 @@
+@startuml UC17 - Editar Perfil da Empresa Parceira
+
+skinparam sequenceArrowThickness 2
+skinparam sequenceParticipant underline
+skinparam sequence {
+  ActorBackgroundColor #DBEAFE
+  ActorBorderColor #2563EB
+  ParticipantBackgroundColor #EEF2FF
+  ParticipantBorderColor #4F46E5
+  ArrowColor #4F46E5
+  LifeLineBorderColor #A5B4FC
+  LifeLineBackgroundColor #F8F9FF
+  BoxBackgroundColor #F0F4FF
+  BoxBorderColor #A5B4FC
+  NoteBackgroundColor #FFFBEB
+  NoteBorderColor #F59E0B
+}
+skinparam roundcorner 8
+
+title UC17 - Editar Perfil da Empresa Parceira
+
+actor "Empresa\nParceira" as E
+box "Camada Web (MVC)" #F0F4FF
+  participant "EmpresaParceiraController" as EPC
+end box
+box "Camada de Serviço" #F0F9FF
+  participant "EmpresaParceiraService" as EPS
+end box
+box "Camada de Persistência" #F0FFF4
+  participant "EmpresaParceiraRepository" as EPR
+end box
+database "PostgreSQL" as DB
+
+E -> EPC : GET /empresa/perfil
+activate EPC
+EPC -> EPS : buscarPorEmail(email)
+activate EPS
+EPS -> EPR : findByEmail(email)
+activate EPR
+EPR -> DB : SELECT * FROM empresas_parceiras WHERE email = ?
+DB --> EPR : EmpresaParceira
+EPR --> EPS : Optional<EmpresaParceira>
+deactivate EPR
+EPS --> EPC : EmpresaParceira
+deactivate EPS
+EPC --> E : Renderiza formulário com dados atuais
+deactivate EPC
+
+E -> EPC : POST /empresa/perfil\n(nomeFantasia atualizado)
+activate EPC
+EPC -> EPS : buscarPorEmail(email)
+activate EPS
+EPS --> EPC : EmpresaParceira atual
+deactivate EPS
+EPC -> EPC : empresaForm.setId(empresa.getId())
+EPC -> EPS : atualizar(empresaForm)
+activate EPS
+EPS -> EPR : save(EmpresaParceira)
+activate EPR
+EPR -> DB : UPDATE empresas_parceiras\nSET nome_fantasia = ? WHERE id = ?
+DB --> EPR : OK
+EPR --> EPS : EmpresaParceira salva
+deactivate EPR
+EPS --> EPC : OK
+deactivate EPS
+EPC --> E : Redireciona para /empresa/perfil\n"Perfil atualizado com sucesso!"
+deactivate EPC
+
+@enduml

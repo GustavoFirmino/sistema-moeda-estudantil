@@ -1,0 +1,95 @@
+@startuml UC03 - Cadastrar Aluno
+
+skinparam sequenceArrowThickness 2
+skinparam sequenceParticipant underline
+skinparam sequence {
+  ActorBackgroundColor #DBEAFE
+  ActorBorderColor #2563EB
+  ParticipantBackgroundColor #EEF2FF
+  ParticipantBorderColor #4F46E5
+  ArrowColor #4F46E5
+  LifeLineBorderColor #A5B4FC
+  LifeLineBackgroundColor #F8F9FF
+  BoxBackgroundColor #F0F4FF
+  BoxBorderColor #A5B4FC
+  NoteBackgroundColor #FFFBEB
+  NoteBorderColor #F59E0B
+}
+skinparam roundcorner 8
+
+title UC03 - Cadastrar-se (Aluno)
+
+actor "Aluno" as A
+box "Camada Web (MVC)" #F0F4FF
+  participant "AuthController" as AC
+end box
+box "Camada de Serviço" #F0F9FF
+  participant "AlunoService" as AS
+end box
+box "Camada de Persistência" #F0FFF4
+  participant "InstituicaoRepository" as IR
+  participant "UsuarioRepository" as UR
+  participant "AlunoRepository" as AR
+end box
+database "PostgreSQL" as DB
+
+A -> AC : GET /auth/cadastro-aluno
+activate AC
+AC -> IR : findAll()
+activate IR
+IR -> DB : SELECT * FROM instituicoes
+DB --> IR : List<Instituicao>
+IR --> AC : List<Instituicao>
+deactivate IR
+AC --> A : Renderiza formulário\n(com lista de instituições)
+deactivate AC
+
+A -> AC : POST /auth/cadastro-aluno\n(CadastroAlunoDTO)
+activate AC
+AC -> AC : Valida DTO\n(Bean Validation)
+
+alt Dados inválidos
+  AC --> A : Retorna formulário com erros
+else Dados válidos
+  AC -> AS : cadastrar(dto)
+  activate AS
+
+  AS -> UR : existsByEmail(email)
+  activate UR
+  UR -> DB : SELECT COUNT(*) FROM usuarios WHERE email = ?
+  DB --> UR : 0 ou 1
+  UR --> AS : boolean
+  deactivate UR
+
+  alt E-mail já cadastrado
+    AS --> AC : throws EmailJaCadastradoException
+    AC --> A : Formulário com erro "E-mail já cadastrado"
+  else E-mail disponível
+    AS -> AR : existsByCpf(cpf)
+    activate AR
+    AR -> DB : SELECT COUNT(*) FROM alunos WHERE cpf = ?
+    DB --> AR : 0 ou 1
+    AR --> AS : boolean
+    deactivate AR
+
+    alt CPF já cadastrado
+      AS --> AC : throws CpfCnpjJaCadastradoException
+      AC --> A : Formulário com erro "CPF já cadastrado"
+    else CPF disponível
+      AS -> AS : BCryptPasswordEncoder.encode(senha)
+      AS -> AR : save(Aluno com saldo=0)
+      activate AR
+      AR -> DB : INSERT INTO usuarios + INSERT INTO alunos
+      DB --> AR : Aluno persistido
+      AR --> AS : Aluno
+      deactivate AR
+      AS --> AC : Aluno criado
+      deactivate AS
+      AC --> A : Redireciona para /auth/login\ncom mensagem de sucesso
+    end
+  end
+end
+
+deactivate AC
+
+@enduml

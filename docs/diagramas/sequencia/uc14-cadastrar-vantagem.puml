@@ -1,0 +1,91 @@
+@startuml UC14 - Cadastrar Vantagem (Empresa Parceira)
+
+skinparam sequenceArrowThickness 2
+skinparam sequenceParticipant underline
+skinparam sequence {
+  ActorBackgroundColor #DBEAFE
+  ActorBorderColor #2563EB
+  ParticipantBackgroundColor #EEF2FF
+  ParticipantBorderColor #4F46E5
+  ArrowColor #4F46E5
+  LifeLineBorderColor #A5B4FC
+  LifeLineBackgroundColor #F8F9FF
+  BoxBackgroundColor #F0F4FF
+  BoxBorderColor #A5B4FC
+  NoteBackgroundColor #FFFBEB
+  NoteBorderColor #F59E0B
+}
+skinparam roundcorner 8
+
+title UC14 - Cadastrar Vantagem (Empresa Parceira)
+
+actor "Empresa\nParceira" as E
+box "Camada Web (MVC)" #F0F4FF
+  participant "EmpresaParceiraController" as EPC
+end box
+box "Camada de Serviço" #F0F9FF
+  participant "EmpresaParceiraService" as EPS
+  participant "VantagemService" as VS
+end box
+box "Camada de Persistência" #F0FFF4
+  participant "EmpresaParceiraRepository" as EPR
+  participant "VantagemRepository" as VR
+end box
+database "PostgreSQL" as DB
+collections "Sistema de\nArquivos" as FS
+
+== Exibir Formulário ==
+
+E -> EPC : GET /empresa/vantagens/nova
+activate EPC
+EPC --> E : Renderiza formulário de cadastro\n(nome, descrição, custo em moedas, foto)
+deactivate EPC
+
+== Cadastrar Vantagem ==
+
+E -> EPC : POST /empresa/vantagens\n(nome, descrição, custoMoedas, foto)
+activate EPC
+
+EPC -> EPS : buscarPorEmail(email)
+activate EPS
+EPS -> EPR : findByEmail(email)
+activate EPR
+EPR -> DB : SELECT * FROM empresas_parceiras\nWHERE email = ?
+DB --> EPR : EmpresaParceira
+EPR --> EPS : Optional<EmpresaParceira>
+deactivate EPR
+EPS --> EPC : EmpresaParceira autenticada
+deactivate EPS
+
+EPC -> VS : cadastrar(vantagem, foto, empresa)
+activate VS
+
+alt Foto enviada
+  VS -> FS : salvar arquivo\n(UUID + nome original)
+  FS --> VS : "/uploads/{uuid_filename}"
+  VS -> VS : vantagem.setFotoUrl(url)
+end
+
+VS -> VS : vantagem.setEmpresaParceira(empresa)
+
+VS -> VR : save(vantagem)
+activate VR
+VR -> DB : INSERT INTO vantagens\n(nome, descricao, foto_url, custo_moedas,\nativa, empresa_parceira_id)
+DB --> VR : Vantagem persistida
+VR --> VS : Vantagem salva
+deactivate VR
+
+VS --> EPC : Vantagem cadastrada
+deactivate VS
+
+EPC --> E : Redireciona para /empresa/vantagens\ncom mensagem "Vantagem cadastrada com sucesso!"
+
+deactivate EPC
+
+note over E, DB
+  A vantagem é criada com ativa = true por padrão.
+  A empresa só consegue gerenciar suas próprias vantagens
+  (verificação de ownership no controller).
+end note
+
+@enduml

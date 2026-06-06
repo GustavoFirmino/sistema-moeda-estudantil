@@ -1,0 +1,34 @@
+@startuml UC02 - Fazer Logout
+
+skinparam sequenceArrowThickness 2
+skinparam sequenceParticipant underline
+skinparam sequence {
+  ActorBackgroundColor #DBEAFE
+  ActorBorderColor #2563EB
+  ParticipantBackgroundColor #EEF2FF
+  ParticipantBorderColor #4F46E5
+  ArrowColor #4F46E5
+  LifeLineBorderColor #A5B4FC
+  LifeLineBackgroundColor #F8F9FF
+  BoxBackgroundColor #F0F4FF
+  BoxBorderColor #A5B4FC
+  NoteBackgroundColor #FFFBEB
+  NoteBorderColor #F59E0B
+}
+skinparam roundcorner 8
+
+title UC02 - Fazer Logout
+
+actor "Usuário\n(Aluno/Professor/Empresa)" as U
+box "Camada Web (MVC)" #F0F4FF
+  participant "Spring Security\n(LogoutFilter)" as SS
+end box
+
+U -> SS : POST /auth/logout
+activate SS
+SS -> SS : Invalida sessão HTTP
+SS -> SS : Limpa SecurityContext
+SS --> U : Redireciona para /auth/login?logout
+deactivate SS
+
+@enduml

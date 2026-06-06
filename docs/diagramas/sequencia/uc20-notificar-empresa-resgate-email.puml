@@ -1,0 +1,50 @@
+@startuml UC20 - Notificar Empresa de Resgate por Email
+
+skinparam sequenceArrowThickness 2
+skinparam sequenceParticipant underline
+skinparam sequence {
+  ActorBackgroundColor #DBEAFE
+  ActorBorderColor #2563EB
+  ParticipantBackgroundColor #EEF2FF
+  ParticipantBorderColor #4F46E5
+  ArrowColor #4F46E5
+  LifeLineBorderColor #A5B4FC
+  LifeLineBackgroundColor #F8F9FF
+  BoxBackgroundColor #F0F4FF
+  BoxBorderColor #A5B4FC
+  NoteBackgroundColor #FFFBEB
+  NoteBorderColor #F59E0B
+}
+skinparam roundcorner 8
+
+title UC20 - Notificar Empresa de Resgate (Email)
+
+note over TS, ES
+  Este UC é incluído automaticamente em UC08 (Resgatar Vantagem).
+  Disparado após UC19 — mesmo fluxo de resgate.
+end note
+
+box "Camada de Serviço" #F0F9FF
+  participant "TransacaoService" as TS
+  participant "EmailService" as ES
+end box
+collections "Servidor SMTP\n(Gmail)" as SMTP
+
+TS -> ES : enviarNotificacaoEmpresa(\n  empresa, aluno, vantagem, codigoCupom)
+activate ES
+
+ES -> ES : Monta SimpleMailMessage:\n  Para: empresa.email\n  Assunto: "Novo resgate: [vantagem.nome]"\n  Corpo: aluno.nome, aluno.email,\n         vantagem.nome, codigoCupom\n  (para conferência presencial)
+
+alt app.email.enabled = true
+  ES -> SMTP : JavaMailSender.send(message)
+  activate SMTP
+  SMTP --> ES : E-mail de conferência entregue à empresa
+  deactivate SMTP
+else app.email.enabled = false
+  ES -> ES : Loga no console\n(modo desenvolvimento)
+end
+
+ES --> TS : OK
+deactivate ES
+
+@enduml

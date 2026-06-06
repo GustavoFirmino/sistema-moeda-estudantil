@@ -1,0 +1,72 @@
+@startuml UC07 - Ver Vantagens Disponíveis (Aluno)
+
+skinparam sequenceArrowThickness 2
+skinparam sequenceParticipant underline
+skinparam sequence {
+  ActorBackgroundColor #DBEAFE
+  ActorBorderColor #2563EB
+  ParticipantBackgroundColor #EEF2FF
+  ParticipantBorderColor #4F46E5
+  ArrowColor #4F46E5
+  LifeLineBorderColor #A5B4FC
+  LifeLineBackgroundColor #F8F9FF
+  BoxBackgroundColor #F0F4FF
+  BoxBorderColor #A5B4FC
+  NoteBackgroundColor #FFFBEB
+  NoteBorderColor #F59E0B
+}
+skinparam roundcorner 8
+
+title UC07 - Ver Vantagens Disponíveis (Aluno)
+
+actor "Aluno" as A
+box "Camada Web (MVC)" #F0F4FF
+  participant "AlunoController" as AC
+end box
+box "Camada de Serviço" #F0F9FF
+  participant "AlunoService" as AS
+  participant "VantagemService" as VS
+end box
+box "Camada de Persistência" #F0FFF4
+  participant "AlunoRepository" as AR
+  participant "VantagemRepository" as VR
+end box
+database "PostgreSQL" as DB
+
+A -> AC : GET /aluno/vantagens
+activate AC
+
+AC -> AS : buscarPorEmail(email)
+activate AS
+AS -> AR : findByEmail(email)
+activate AR
+AR -> DB : SELECT * FROM alunos WHERE email = ?
+DB --> AR : Aluno
+AR --> AS : Optional<Aluno>
+deactivate AR
+AS --> AC : Aluno (com saldo atual)
+deactivate AS
+
+AC -> VS : listarDisponiveis()
+activate VS
+VS -> VR : findByAtivaTrue()
+activate VR
+VR -> DB : SELECT v.*, e.nome_fantasia\nFROM vantagens v\nJOIN empresas_parceiras e ON v.empresa_parceira_id = e.id\nWHERE v.ativa = true
+DB --> VR : List<Vantagem>
+VR --> VS : List<Vantagem>
+deactivate VR
+VS --> AC : List<Vantagem> disponíveis
+deactivate VS
+
+AC --> A : Renderiza catálogo de vantagens:\n- Saldo do aluno exibido no topo\n- Cards com foto, nome, empresa,\n  descrição e custo em moedas\n- Botão "Resgatar" (desabilitado\n  se saldo insuficiente)
+
+deactivate AC
+
+note over A, DB
+  Apenas vantagens com ativa = true são exibidas.
+  O sistema compara o saldo do aluno com o custo
+  de cada vantagem para habilitar/desabilitar o botão
+  de resgate diretamente na view (Thymeleaf).
+end note
+
+@enduml
