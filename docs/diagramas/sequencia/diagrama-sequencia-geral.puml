@@ -1,0 +1,173 @@
+@startuml Diagrama de Sequencia Geral
+
+skinparam sequenceArrowThickness 2
+skinparam sequenceParticipant underline
+skinparam sequence {
+  ActorBackgroundColor #DBEAFE
+  ActorBorderColor #2563EB
+  ParticipantBackgroundColor #EEF2FF
+  ParticipantBorderColor #4F46E5
+  ArrowColor #4F46E5
+  LifeLineBorderColor #A5B4FC
+  LifeLineBackgroundColor #F8F9FF
+  BoxBackgroundColor #F0F4FF
+  BoxBorderColor #A5B4FC
+  NoteBackgroundColor #FFFBEB
+  NoteBorderColor #F59E0B
+}
+skinparam roundcorner 8
+
+title Diagrama de Sequência Geral — Ciclo Completo da Moeda Estudantil
+
+actor "Professor" as P
+actor "Aluno" as A
+actor "Empresa Parceira" as E
+
+box "Camada Web (MVC)" #F0F4FF
+  participant "Spring Security\n(Autenticação)" as SEC
+  participant "ProfessorController" as PC
+  participant "AlunoController" as AC
+  participant "EmpresaParceiraController" as EC
+end box
+
+box "Camada de Serviço" #F0F9FF
+  participant "TransacaoService" as TS
+  participant "VantagemService" as VS
+  participant "EmailService" as ES
+end box
+
+box "Camada de Persistência" #F0FFF4
+  participant "Repositories\n(Spring Data JPA)" as REP
+end box
+
+database "PostgreSQL" as DB
+
+== Autenticação (todos os perfis) ==
+
+P -> SEC : POST /auth/login (email, senha)
+activate SEC
+SEC -> REP : findByEmail(email)
+REP -> DB : SELECT * FROM usuarios WHERE email = ?
+DB --> REP : Usuario
+REP --> SEC : UserDetails (role)
+SEC --> P : Sessão autenticada\nredirect /professor/dashboard
+deactivate SEC
+
+note over A, E : Aluno e Empresa autenticam-se pelo mesmo fluxo,\nsendo redirecionados aos seus respectivos dashboards.
+
+== 1. Empresa cadastra vantagem ==
+
+E -> EC : POST /empresa/vantagens/nova\n(nome, descrição, foto, custo em moedas)
+activate EC
+EC -> VS : cadastrar(vantagemDTO, empresa)
+activate VS
+VS -> REP : save(Vantagem)
+REP -> DB : INSERT INTO vantagens (...)
+DB --> REP : Vantagem persistida
+REP --> VS : Vantagem
+VS --> EC : Vantagem cadastrada
+deactivate VS
+EC --> E : Redireciona para /empresa/vantagens\n"Vantagem cadastrada com sucesso!"
+deactivate EC
+
+== 2. Professor envia moedas ao aluno ==
+
+P -> PC : POST /professor/enviar-moedas\n(aluno, valor, mensagem obrigatória)
+activate PC
+PC -> TS : enviarMoedas(professorId, alunoId, valor, mensagem)
+activate TS
+TS -> REP : findById(professorId) / findById(alunoId)
+REP -> DB : SELECT (professor, aluno)
+DB --> REP : Professor, Aluno
+REP --> TS : Professor, Aluno
+
+alt Saldo do professor insuficiente
+  TS --> PC : throws SaldoInsuficienteException
+  PC --> P : Erro: "Saldo insuficiente"
+else Envio válido
+  TS -> REP : save(professor saldo-valor)\nsave(aluno saldo+valor)\nsave(TransacaoEnvio)
+  REP -> DB : UPDATE saldos + INSERT INTO transacoes (tipo='ENVIO')
+  DB --> REP : OK
+  REP --> TS : TransacaoEnvio
+  TS -> ES : enviarRecebimentoMoedas(aluno, professor, valor, mensagem)
+  activate ES
+  ES --> A : 📧 E-mail: "Você recebeu N moedas!"\n(motivo do reconhecimento + saldo atual)
+  ES --> TS : E-mail enviado
+  deactivate ES
+  TS --> PC : Envio concluído
+  deactivate TS
+  PC --> P : "Moedas enviadas com sucesso!"
+end
+deactivate PC
+
+== 3. Consulta de extrato ==
+
+P -> PC : GET /professor/extrato
+PC -> TS : extratoEnviosProfessor(professorId)
+TS -> REP : findByProfessorIdOrderByDataHoraDesc
+REP -> DB : SELECT * FROM transacoes WHERE professor_id = ?
+DB --> REP : Lista de envios
+REP --> TS : List<TransacaoEnvio>
+TS --> PC : Extrato do professor
+PC --> P : Página com saldo + envios realizados
+
+A -> AC : GET /aluno/extrato
+AC -> TS : extratoRecebimentosAluno + extratoResgatesAluno
+TS -> REP : findByAlunoIdOrderByDataHoraDesc
+REP -> DB : SELECT * FROM transacoes WHERE aluno_id = ?
+DB --> REP : Recebimentos e resgates
+REP --> TS : List<Transacao>
+TS --> AC : Extrato do aluno
+AC --> A : Página com saldo + recebimentos + resgates
+
+== 4. Aluno resgata vantagem ==
+
+A -> AC : GET /aluno/vantagens
+AC -> VS : listarDisponiveis()
+VS -> REP : findByAtivaTrue()
+REP -> DB : SELECT * FROM vantagens WHERE ativa = true
+DB --> REP : Vantagens ativas
+REP --> VS : List<Vantagem>
+VS --> AC : Catálogo de vantagens
+AC --> A : Página com fotos, descrições e custos
+
+A -> AC : POST /aluno/resgatar/{vantagemId}
+activate AC
+AC -> TS : resgatarVantagem(alunoId, vantagemId)
+activate TS
+TS -> REP : findById(aluno) / findById(vantagem)
+REP -> DB : SELECT (aluno, vantagem)
+DB --> REP : Aluno, Vantagem
+REP --> TS : Aluno, Vantagem
+
+alt Vantagem inativa ou saldo insuficiente
+  TS --> AC : throws Exception
+  AC --> A : Redireciona com mensagem de erro
+else Resgate válido
+  TS -> TS : Gera código do cupom\n(UUID — 8 caracteres)
+  TS -> REP : save(aluno saldo-custo)\nsave(TransacaoResgate + codigoCupom)
+  REP -> DB : UPDATE alunos + INSERT INTO transacoes\n(tipo='RESGATE', codigo_cupom)
+  DB --> REP : OK
+  REP --> TS : TransacaoResgate
+
+  TS -> ES : enviarCupomAluno(aluno, vantagem, codigoCupom)
+  activate ES
+  ES --> A : 📧 E-mail: cupom com código\npara troca presencial
+  deactivate ES
+
+  TS -> ES : enviarNotificacaoEmpresa(empresa, aluno, vantagem, codigoCupom)
+  activate ES
+  ES --> E : 📧 E-mail: notificação de resgate\ncom código de conferência
+  deactivate ES
+
+  TS --> AC : Resgate concluído
+  deactivate TS
+  AC --> A : "Vantagem resgatada!\nVerifique seu e-mail para o cupom."
+end
+deactivate AC
+
+== 5. Conferência presencial ==
+
+note over A, E : O aluno apresenta o código do cupom na empresa parceira.\nA empresa confere o código recebido por e-mail e entrega a vantagem.
+
+@enduml

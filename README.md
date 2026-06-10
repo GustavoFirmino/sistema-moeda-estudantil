@@ -37,7 +37,7 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-007ec6?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Compose-007ec6?style=for-the-badge&logo=docker&logoColor=white)
 ![Maven](https://img.shields.io/badge/Maven-3.9-007ec6?style=for-the-badge&logo=apachemaven&logoColor=white)
-![Versão](https://img.shields.io/badge/Versão-Lab04S02_Release_2-brightgreen?style=for-the-badge)
+![Versão](https://img.shields.io/badge/Versão-Lab04S03_Release_2-brightgreen?style=for-the-badge)
 ![Licença](https://img.shields.io/badge/Licença-MIT-007ec6?style=for-the-badge&logo=opensourceinitiative)
 
 ---
@@ -76,6 +76,7 @@
 * 📐 **Diagrama de Componentes:** [`docs/diagramas/diagrama-componentes.puml`](docs/diagramas/diagrama-componentes.puml)
 * 📋 **Modelo ER:** [`docs/diagramas/modelo-er.puml`](docs/diagramas/modelo-er.puml)
 * 🔀 **Diagramas de Sequência (20 UCs):** [`docs/diagramas/sequencia/`](docs/diagramas/sequencia/)
+* 🧭 **Diagrama de Sequência Geral:** [`docs/diagramas/sequencia/diagrama-sequencia-geral.puml`](docs/diagramas/sequencia/diagrama-sequencia-geral.puml)
 * 🎞️ **Apresentação Final (slides):** [`docs/apresentacao/`](docs/apresentacao/)
 * 📖 **User Stories:** [`docs/user-stories.md`](docs/user-stories.md)
 
@@ -206,6 +207,7 @@ O projeto segue a **Arquitetura MVC (Model-View-Controller)** com camada de serv
 | Diagrama de Componentes | [`docs/diagramas/diagrama-componentes.puml`](docs/diagramas/diagrama-componentes.puml) | [`diagrama-componentes.png`](docs/diagramas/diagrama-componentes.png) |
 | Modelo ER | [`docs/diagramas/modelo-er.puml`](docs/diagramas/modelo-er.puml) | [`modelo-er.png`](docs/diagramas/modelo-er.png) |
 | Diagramas de Sequência (20 UCs) | [`docs/diagramas/sequencia/`](docs/diagramas/sequencia/) | UC01–UC20 (`.puml` + `.png`) |
+| Diagrama de Sequência Geral | [`diagrama-sequencia-geral.puml`](docs/diagramas/sequencia/diagrama-sequencia-geral.puml) | [`diagrama-sequencia-geral.png`](docs/diagramas/sequencia/diagrama-sequencia-geral.png) |
 
 > Para editar os arquivos `.puml`, instale o plugin **PlantUML** no VS Code e pressione `Alt+D` para preview ao vivo.
 > As imagens `.png` foram geradas automaticamente via `plantuml -tpng`.
@@ -434,7 +436,7 @@ sistema-moeda-estudantil/
 | Lab03S03 | CRUDs finais, integração completa, apresentação da arquitetura | ✅ Concluído |
 | Lab04S01 | Envio de moedas, consulta de extrato (professor e aluno), notificações por e-mail | ✅ Concluído |
 | Lab04S02 | 20 diagramas de sequência (UC01–UC20), cadastro e listagem de vantagens | ✅ Concluído |
-| Lab04S03 | Diagrama de Sequência Geral, resgate de vantagens pelo aluno | 🔜 Próximo |
+| Lab04S03 | Diagrama de Sequência Geral, resgate de vantagens pelo aluno | ✅ Concluído |
 
 ---
 

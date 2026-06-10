@@ -41,3 +41,7 @@ uploads/
 
 ### OS ###
 .DS_Store
+
+### Claude Code local ###
+.claude/
+uploads/
