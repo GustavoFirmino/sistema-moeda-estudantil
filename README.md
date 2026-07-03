@@ -36,6 +36,7 @@
 ![Thymeleaf](https://img.shields.io/badge/Thymeleaf-3.x-007ec6?style=for-the-badge&logo=thymeleaf&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-007ec6?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Compose-007ec6?style=for-the-badge&logo=docker&logoColor=white)
+![Render](https://img.shields.io/badge/Deploy-Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)
 ![Maven](https://img.shields.io/badge/Maven-3.9-007ec6?style=for-the-badge&logo=apachemaven&logoColor=white)
 ![Versão](https://img.shields.io/badge/Versão-Lab05_Release_3-brightgreen?style=for-the-badge)
 ![Licença](https://img.shields.io/badge/Licença-MIT-007ec6?style=for-the-badge&logo=opensourceinitiative)
@@ -68,7 +69,9 @@
 
 ## 🔗 Links Úteis
 
-* 🌐 **Aplicação:** [`http://localhost:8080`](http://localhost:8080) *(disponível com a aplicação rodando)*
+* ☁️ **Aplicação no ar (Render):** **[https://moeda-estudantil-kqqs.onrender.com](https://moeda-estudantil-kqqs.onrender.com)** — sistema implantado na nuvem (Lab05S01)
+* 🖥️ **Apresentação pública (no ar):** [https://moeda-estudantil-kqqs.onrender.com/apresentacao](https://moeda-estudantil-kqqs.onrender.com/apresentacao)
+* 🌐 **Aplicação (local):** [`http://localhost:8080`](http://localhost:8080) *(disponível com a aplicação rodando)*
 * 🩺 **Login:** [`http://localhost:8080/auth/login`](http://localhost:8080/auth/login)
 * 🖥️ **Apresentação do sistema (pública):** [`http://localhost:8080/apresentacao`](http://localhost:8080/apresentacao) — stack, entidades, diagramas, design e telas
 * 📐 **Casos de Uso:** [`docs/diagramas/casos-de-uso.puml`](docs/diagramas/casos-de-uso.puml)
