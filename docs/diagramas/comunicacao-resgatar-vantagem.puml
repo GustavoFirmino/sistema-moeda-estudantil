@@ -1,0 +1,43 @@
+@startuml Comunicacao - Resgatar Vantagem
+!pragma layout smetana
+skinparam rectangle {
+  BackgroundColor #EEF2FF
+  BorderColor #4F46E5
+}
+skinparam actor {
+  BackgroundColor #DBEAFE
+  BorderColor #2563EB
+}
+skinparam database {
+  BackgroundColor #F0FFF4
+  BorderColor #16A34A
+}
+skinparam ArrowColor #4F46E5
+skinparam roundcorner 8
+
+title Diagrama de Comunicação — Resgatar Vantagem com Cupom QR Code (UC08)
+
+actor "Aluno" as A
+rectangle ":AlunoController" as AC
+rectangle ":TransacaoService" as TS
+rectangle ":AlunoRepository" as AR
+rectangle ":VantagemRepository" as VR
+rectangle ":TransacaoResgateRepository" as TRR
+rectangle ":QrCodeService" as QR
+rectangle ":EmailService" as ES
+database ":PostgreSQL" as DB
+
+A -> AC : 1: POST /aluno/resgatar/{vantagemId}
+AC -> TS : 1.1: resgatarVantagem(alunoId, vantagemId)
+TS -> AR : 1.1.1: findById(alunoId)\n1.1.4: save(aluno saldo-custo)
+TS -> VR : 1.1.2: findById(vantagemId)
+TS -> TS : 1.1.3: valida vantagem ativa e saldo\n+ gera código do cupom (UUID)
+TS -> TRR : 1.1.5: save(TransacaoResgate + codigoCupom)
+TS -> ES : 1.1.6: enviarCupomAluno(...)\n1.1.7: enviarNotificacaoEmpresa(...)
+ES -> QR : 1.1.6.1: gerarPng(conteúdo do cupom)
+AR -> DB : 2: UPDATE alunos
+TRR -> DB : 3: INSERT transacoes (RESGATE)
+AC <-- TS : 1.2: TransacaoResgate
+A <-- AC : 4: "Vantagem resgatada!\nCupom com QR Code enviado por e-mail"
+
+@enduml

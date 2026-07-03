@@ -37,7 +37,7 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-007ec6?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Compose-007ec6?style=for-the-badge&logo=docker&logoColor=white)
 ![Maven](https://img.shields.io/badge/Maven-3.9-007ec6?style=for-the-badge&logo=apachemaven&logoColor=white)
-![Versão](https://img.shields.io/badge/Versão-Lab04S03_Release_2-brightgreen?style=for-the-badge)
+![Versão](https://img.shields.io/badge/Versão-Lab05_Release_3-brightgreen?style=for-the-badge)
 ![Licença](https://img.shields.io/badge/Licença-MIT-007ec6?style=for-the-badge&logo=opensourceinitiative)
 
 ---
@@ -77,6 +77,9 @@
 * 📋 **Modelo ER:** [`docs/diagramas/modelo-er.puml`](docs/diagramas/modelo-er.puml)
 * 🔀 **Diagramas de Sequência (20 UCs):** [`docs/diagramas/sequencia/`](docs/diagramas/sequencia/)
 * 🧭 **Diagrama de Sequência Geral:** [`docs/diagramas/sequencia/diagrama-sequencia-geral.puml`](docs/diagramas/sequencia/diagrama-sequencia-geral.puml)
+* 🗣️ **Diagramas de Comunicação:** [`comunicacao-enviar-moedas.puml`](docs/diagramas/comunicacao-enviar-moedas.puml) · [`comunicacao-resgatar-vantagem.puml`](docs/diagramas/comunicacao-resgatar-vantagem.puml)
+* 🚀 **Diagrama de Implantação:** [`docs/diagramas/implantacao.puml`](docs/diagramas/implantacao.puml)
+* 📝 **Relatório de Análise Crítica (Lab05S02):** [`docs/relatorio-analise-critica-meritum.md`](docs/relatorio-analise-critica-meritum.md)
 * 🎞️ **Apresentação Final (slides):** [`docs/apresentacao/`](docs/apresentacao/)
 * 📖 **User Stories:** [`docs/user-stories.md`](docs/user-stories.md)
 
@@ -108,7 +111,7 @@ Projeto acadêmico desenvolvido ao longo de 3 sprints aplicando metodologias ág
 - Extrato completo (recebimentos de professores + resgates realizados)
 - Catálogo de vantagens com foto, descrição e custo em moedas
 - Resgate de vantagens com geração de código de cupom único
-- Recebimento de cupom por e-mail ao resgatar
+- Recebimento de cupom por e-mail com **QR Code único** gerado automaticamente (ZXing)
 - Edição de perfil
 
 ### 👨‍🏫 Professor
@@ -139,6 +142,7 @@ Projeto acadêmico desenvolvido ao longo de 3 sprints aplicando metodologias ág
 | Hibernate | 6.x | Implementação JPA |
 | Spring Security | 6.x | Autenticação e autorização por roles |
 | Spring Mail | — | Envio de e-mails (JavaMailSender) |
+| ZXing | 3.5.3 | Geração do QR Code único do cupom |
 | Bean Validation | 3.x | Validação de formulários |
 | PostgreSQL | 16 | Banco de dados relacional |
 | Docker Compose | — | Container do banco de dados |
@@ -208,6 +212,9 @@ O projeto segue a **Arquitetura MVC (Model-View-Controller)** com camada de serv
 | Modelo ER | [`docs/diagramas/modelo-er.puml`](docs/diagramas/modelo-er.puml) | [`modelo-er.png`](docs/diagramas/modelo-er.png) |
 | Diagramas de Sequência (20 UCs) | [`docs/diagramas/sequencia/`](docs/diagramas/sequencia/) | UC01–UC20 (`.puml` + `.png`) |
 | Diagrama de Sequência Geral | [`diagrama-sequencia-geral.puml`](docs/diagramas/sequencia/diagrama-sequencia-geral.puml) | [`diagrama-sequencia-geral.png`](docs/diagramas/sequencia/diagrama-sequencia-geral.png) |
+| Comunicação — Enviar Moedas | [`comunicacao-enviar-moedas.puml`](docs/diagramas/comunicacao-enviar-moedas.puml) | [`comunicacao-enviar-moedas.png`](docs/diagramas/comunicacao-enviar-moedas.png) |
+| Comunicação — Resgatar Vantagem | [`comunicacao-resgatar-vantagem.puml`](docs/diagramas/comunicacao-resgatar-vantagem.puml) | [`comunicacao-resgatar-vantagem.png`](docs/diagramas/comunicacao-resgatar-vantagem.png) |
+| Implantação (Render) | [`implantacao.puml`](docs/diagramas/implantacao.puml) | [`implantacao.png`](docs/diagramas/implantacao.png) |
 
 > Para editar os arquivos `.puml`, instale o plugin **PlantUML** no VS Code e pressione `Alt+D` para preview ao vivo.
 > As imagens `.png` foram geradas automaticamente via `plantuml -tpng`.
@@ -277,6 +284,19 @@ docker ps
 # Encerrar:
 docker compose down
 ```
+
+---
+
+### ☁️ Deploy na Nuvem (Render) — Lab05S01
+
+O repositório inclui [`Dockerfile`](Dockerfile) e [`render.yaml`](render.yaml) (Blueprint / Infrastructure as Code).
+
+1. Acesse [render.com](https://render.com) e conecte sua conta GitHub;
+2. **New → Blueprint** e selecione este repositório;
+3. O Render cria automaticamente o **Web Service** (Docker) e o **PostgreSQL gerenciado**, injetando as variáveis `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER` e `DB_PASSWORD`;
+4. Para envio real de e-mails, defina `APP_EMAIL_ENABLED=true` e as credenciais SMTP (`SPRING_MAIL_USERNAME` / `SPRING_MAIL_PASSWORD`).
+
+> A aplicação lê `PORT` e `DB_*` do ambiente ([application.properties](src/main/resources/application.properties)) — os defaults apontam para o ambiente local, então nada muda no desenvolvimento.
 
 ---
 
@@ -437,6 +457,8 @@ sistema-moeda-estudantil/
 | Lab04S01 | Envio de moedas, consulta de extrato (professor e aluno), notificações por e-mail | ✅ Concluído |
 | Lab04S02 | 20 diagramas de sequência (UC01–UC20), cadastro e listagem de vantagens | ✅ Concluído |
 | Lab04S03 | Diagrama de Sequência Geral, resgate de vantagens pelo aluno | ✅ Concluído |
+| Lab05S01 | Diagramas de Comunicação e Implantação, cupom por e-mail com QR Code, deploy na nuvem (Render) | ✅ Concluído |
+| Lab05S02 | Análise crítica de projeto de outro grupo + 3 refatorações via Pull Request | ✅ Concluído |
 
 ---
 

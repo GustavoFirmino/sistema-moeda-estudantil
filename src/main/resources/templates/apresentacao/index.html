@@ -204,7 +204,7 @@
                 {'img':'seq-uc04-cadastrar-empresa.png','t':'UC04 — Cadastrar Empresa','s':'Lab03S02','d':'Empresa informa nome fantasia, e-mail, CNPJ e senha. Validações de unicidade antes de persistir em usuarios + empresas_parceiras.'},
                 {'img':'seq-uc05-dashboard-aluno.png','t':'UC05 — Dashboard do Aluno','s':'Lab03S03','d':'Exibe saldo atual e os 5 recebimentos mais recentes. Combina AlunoService e TransacaoService para compor a visão.'},
                 {'img':'seq-uc06-extrato-aluno.png','t':'UC06 — Extrato do Aluno','s':'Lab04S01','d':'Lista completa de recebimentos (TransacaoEnvio) e resgates (TransacaoResgate), ambos ordenados por data/hora decrescente.'},
-                {'img':'seq-uc07-listar-vantagens.png','t':'UC07 — Listar Vantagens','s':'Lab04S02','d':'Catálogo de vantagens ativas (ativa = true). Botão "Resgatar" desabilitado automaticamente se o saldo do aluno for insuficiente.'},
+                {'img':'seq-uc07-listar-vantagens.png','t':'UC07 — Listar Vantagens','s':'Lab04S02','d':'Catálogo de vantagens ativas (ativa = true). Botão &quot;Resgatar&quot; desabilitado automaticamente se o saldo do aluno for insuficiente.'},
                 {'img':'seq-uc08-resgatar-vantagem.png','t':'UC08 — Resgatar Vantagem','s':'Lab04S03','d':'Valida saldo e status da vantagem, gera cupom UUID de 8 caracteres, debita o aluno, persiste TransacaoResgate e dispara e-mails para aluno e empresa.'},
                 {'img':'seq-uc09-editar-perfil-aluno.png','t':'UC09 — Editar Perfil (Aluno)','s':'Lab03S02','d':'Aluno atualiza nome, RG, endereço e curso. O controller preserva o ID do usuário autenticado antes de salvar.'},
                 {'img':'seq-uc10-dashboard-professor.png','t':'UC10 — Dashboard do Professor','s':'Lab03S03','d':'Exibe saldo de moedas disponível e os 5 últimos envios realizados, consumindo ProfessorService e TransacaoService.'},
@@ -248,6 +248,32 @@
                 <span class="badge bg-primary-subtle text-primary mb-2">Lab04S03</span>
                 <h5 class="fw-bold">Ciclo Completo da Moeda Estudantil</h5>
                 <p class="text-muted small mb-0">Integra os principais casos de uso em um único fluxo: a empresa cadastra a vantagem, o professor reconhece o mérito enviando moedas (com e-mail ao aluno), o aluno acompanha o extrato e resgata a vantagem — gerando o código de cupom enviado por e-mail ao aluno e à empresa parceira para conferência presencial.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Release 3 — Lab05S01 -->
+    <section class="mb-5">
+        <h2 class="fw-bold mb-4"><i class="fas fa-qrcode text-primary me-2"></i>Release 3 — Comunicação, Implantação e Cupom QR Code <span class="badge bg-success ms-2 fs-6">Lab05S01</span></h2>
+        <p class="text-muted mb-4">Diagramas de Comunicação e de Implantação, e evolução do cupom de resgate: os e-mails agora são enviados em HTML com um <b>QR Code único</b> gerado automaticamente (ZXing), facilitando a conferência presencial na empresa parceira. A aplicação está preparada para implantação na nuvem via <b>Render</b> (Dockerfile + render.yaml).</p>
+        <div class="row g-4"
+             th:with="r3=${ {
+                {'img':'comunicacao-enviar-moedas.png','t':'Diagrama de Comunicação — Enviar Moedas','s':'Lab05S01','d':'Colaboração entre controller, service, repositórios e e-mail na distribuição de moedas, com numeração das mensagens.'},
+                {'img':'comunicacao-resgatar-vantagem.png','t':'Diagrama de Comunicação — Resgatar Vantagem','s':'Lab05S01','d':'Realização do resgate sob a perspectiva estrutural, incluindo a geração do QR Code do cupom pelo QrCodeService.'},
+                {'img':'implantacao.png','t':'Diagrama de Implantação','s':'Lab05S01','d':'Topologia de execução: Web Service Docker + PostgreSQL gerenciado no Render, SMTP externo e ambiente local com Docker Compose.'}
+             } }">
+            <div class="col-lg-6" th:each="dg : ${r3}">
+                <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
+                    <div class="bg-light border-bottom p-3 text-center">
+                        <img th:src="@{'/img/diagrams/' + ${dg.img}}" th:alt="${dg.t}"
+                             class="img-fluid rounded" style="max-height:300px"/>
+                    </div>
+                    <div class="card-body p-4">
+                        <span class="badge bg-primary-subtle text-primary mb-2" th:text="${dg.s}">Sprint</span>
+                        <h5 class="fw-bold" th:text="${dg.t}">Título</h5>
+                        <p class="text-muted small mb-0" th:text="${dg.d}">Descrição</p>
+                    </div>
+                </div>
             </div>
         </div>
     </section>

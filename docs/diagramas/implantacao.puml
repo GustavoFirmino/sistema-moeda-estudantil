@@ -1,0 +1,50 @@
+@startuml Implantacao - Moeda Estudantil
+!pragma layout smetana
+skinparam node {
+  BackgroundColor #EEF2FF
+  BorderColor #4F46E5
+}
+skinparam database {
+  BackgroundColor #F0FFF4
+  BorderColor #16A34A
+}
+skinparam ArrowColor #4F46E5
+skinparam roundcorner 8
+
+title Diagrama de Implantação — Sistema de Moeda Estudantil (Render)
+
+node "Dispositivo do Usuário" as USER {
+  artifact "Navegador Web\n(Thymeleaf + Bootstrap 5)" as BROWSER
+}
+
+cloud "Render (nuvem)" as RENDER {
+  node "Web Service (Docker)" as WS {
+    artifact "moeda-estudantil.jar\n(Spring Boot 3.5 — JRE 21)" as JAR
+  }
+  node "Render PostgreSQL" as RDB {
+    database "moeda_estudantil\n(PostgreSQL 16)" as PG
+  }
+}
+
+node "Ambiente Local (desenvolvimento)" as LOCAL {
+  node "Docker Compose" as DC {
+    database "PostgreSQL 16\n(container)" as PGLOCAL
+  }
+  artifact "mvnw spring-boot:run" as MVN
+}
+
+cloud "Serviços Externos" as EXT {
+  node "Servidor SMTP\n(Gmail)" as SMTP
+}
+
+BROWSER --> JAR : HTTPS (443)
+JAR --> PG : JDBC/TCP (5432)\nvariáveis DB_* do Blueprint
+JAR --> SMTP : SMTP/TLS (587)\ne-mails com cupom QR Code
+MVN --> PGLOCAL : JDBC (localhost:5432)
+
+note bottom of WS
+  Build automático a partir do Dockerfile
+  (render.yaml — Infrastructure as Code)
+end note
+
+@enduml

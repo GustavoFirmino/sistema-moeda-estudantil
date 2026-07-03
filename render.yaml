@@ -1,0 +1,37 @@
+# Blueprint do Render — Sistema de Moeda Estudantil (Lab05S01)
+# Deploy: https://render.com > New > Blueprint > aponte para este repositório
+
+services:
+  - type: web
+    name: moeda-estudantil
+    runtime: docker
+    plan: free
+    healthCheckPath: /apresentacao
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: moeda-estudantil-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: moeda-estudantil-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: moeda-estudantil-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: moeda-estudantil-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: moeda-estudantil-db
+          property: password
+      - key: APP_EMAIL_ENABLED
+        value: "false"
+
+databases:
+  - name: moeda-estudantil-db
+    plan: free
+    databaseName: moeda_estudantil
