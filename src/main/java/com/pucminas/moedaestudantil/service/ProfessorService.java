@@ -1,6 +1,8 @@
 package com.pucminas.moedaestudantil.service;
 
+import com.pucminas.moedaestudantil.model.Instituicao;
 import com.pucminas.moedaestudantil.model.Professor;
+import com.pucminas.moedaestudantil.repository.InstituicaoRepository;
 import com.pucminas.moedaestudantil.repository.ProfessorRepository;
 import com.pucminas.moedaestudantil.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,7 @@ public class ProfessorService {
 
     private final ProfessorRepository professorRepository;
     private final UsuarioRepository usuarioRepository;
+    private final InstituicaoRepository instituicaoRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
@@ -29,6 +32,13 @@ public class ProfessorService {
         if (professorRepository.existsByCpf(professor.getCpf())) {
             throw new IllegalArgumentException("CPF já cadastrado no sistema.");
         }
+        // O form envia apenas o id — resolve a entidade gerenciada antes de salvar
+        if (professor.getInstituicao() == null || professor.getInstituicao().getId() == null) {
+            throw new IllegalArgumentException("Selecione uma instituição de ensino.");
+        }
+        Instituicao instituicao = instituicaoRepository.findById(professor.getInstituicao().getId())
+                .orElseThrow(() -> new IllegalArgumentException("Instituição de ensino inválida."));
+        professor.setInstituicao(instituicao);
         professor.setSenha(passwordEncoder.encode(senha));
         professor.setSaldoMoedas(MOEDAS_INICIAIS);
         return professorRepository.save(professor);
